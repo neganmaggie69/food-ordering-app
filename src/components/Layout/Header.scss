@@ -12,10 +12,12 @@
   .container {
     @include flex-between;
     height: 4rem;
-    @include mobile-container;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 $spacing-6;
 
     @include mobile {
-      height: 3.25rem; // More compact on mobile
+      height: 3.25rem;
       padding: 0 $spacing-3;
     }
   }

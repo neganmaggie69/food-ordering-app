@@ -45,7 +45,7 @@ const MenuSection = () => {
   return (
     <div className="menu-section">
       <div className="container">
-        <h2 className="section-title">Our Menu</h2>
+        <h2 className="section-title">Hello, Bir !!</h2>
         
         {/* Sticky filter container */}
         <div className="filters-container">
