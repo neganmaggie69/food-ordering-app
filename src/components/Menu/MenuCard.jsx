@@ -41,19 +41,21 @@ const MenuCard = ({ item }) => {
       
       <div className="menu-card-content">
         <div className="menu-card-header">
-          <h3 className="menu-card-title">{item.name}</h3>
-          <span className="menu-card-price">₹{item.price}</span>
-        </div>
-
-        <div className="menu-card-footer">
-          <div className="menu-card-badges">
-            {item.category && (
-              <span className="category-badge">{item.category}</span>
-            )}
+          <div className="title-row">
             {item.isVeg !== undefined && (
               <div className={`veg-indicator ${item.isVeg ? 'veg' : 'non-veg'}`}>
                 <div className="veg-dot" />
               </div>
+            )}
+            <h3 className="menu-card-title">{item.name}</h3>
+          </div>
+          <span className="menu-card-price">₹{item.price}</span>
+        </div>
+
+        <div className="menu-card-footer">
+          <div className="menu-card-info">
+            {item.category && (
+              <span className="category-badge">{item.category}</span>
             )}
           </div>
 
