@@ -15,6 +15,26 @@
     border-color: $gray-200;
   }
 
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    
+    .menu-card-image {
+      filter: grayscale(50%);
+    }
+    
+    .menu-card-title,
+    .menu-card-price {
+      color: $gray-400;
+    }
+    
+    &:hover {
+      transform: none;
+      box-shadow: $shadow-sm;
+      border-color: $gray-100;
+    }
+  }
+
   @include mobile {
     border-radius: $border-radius-lg;
     box-shadow: $shadow-sm;
@@ -108,8 +128,8 @@
           height: 1rem;
           border: 1.5px solid;
           @include flex-center;
-          border-radius: 2px;
           flex-shrink: 0;
+          position: relative;
 
           @include mobile {
             width: 0.875rem;
@@ -126,22 +146,22 @@
           }
 
           .veg-dot {
-            width: 0.4rem;
-            height: 0.4rem;
+            width: 0.375rem;
+            height: 0.375rem;
             border-radius: 50%;
 
             @include mobile {
-              width: 0.35rem;
-              height: 0.35rem;
+              width: 0.3rem;
+              height: 0.3rem;
             }
+          }
 
-            .veg & {
-              background-color: $success-color;
-            }
+          &.veg .veg-dot {
+            background-color: $success-color;
+          }
 
-            .non-veg & {
-              background-color: $error-color;
-            }
+          &.non-veg .veg-dot {
+            background-color: $error-color;
           }
         }
       }
@@ -244,6 +264,25 @@
             font-size: 0.875rem;
             min-width: 1.25rem;
           }
+        }
+      }
+
+      .unavailable-badge {
+        background-color: $gray-200;
+        color: $gray-500;
+        padding: $spacing-2 $spacing-3;
+        border-radius: $border-radius;
+        font-size: 0.8rem;
+        font-weight: 500;
+        white-space: nowrap;
+        flex-shrink: 0;
+
+        @include mobile {
+          padding: 6px $spacing-2;
+          font-size: 0.75rem;
+          min-height: 32px;
+          border-radius: 6px;
+          @include flex-center;
         }
       }
     }

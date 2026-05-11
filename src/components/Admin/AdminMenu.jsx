@@ -301,12 +301,12 @@ const AdminMenu = () => {
                       <div>
                         <div className="text-sm font-medium text-gray-900 flex items-center">
                           {item.name}
-                          <div className={`ml-2 w-3 h-3 border flex items-center justify-center ${
+                          <div className={`ml-2 w-3 h-3 border flex items-center justify-center relative ${
                             item.isVeg ? 'border-green-500' : 'border-red-500'
-                          }`}>
-                            <div className={`w-1.5 h-1.5 rounded-full ${
+                          }`} style={{clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)'}}>
+                            <div className={`w-1 h-1 rounded-full absolute ${
                               item.isVeg ? 'bg-green-500' : 'bg-red-500'
-                            }`} />
+                            }`} style={{top: '50%', left: '50%', transform: 'translate(-50%, -25%)'}} />
                           </div>
                         </div>
                         {item.description && (

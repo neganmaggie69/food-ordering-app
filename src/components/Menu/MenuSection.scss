@@ -28,11 +28,125 @@
     }
   }
 
+  .filters-container {
+    position: sticky;
+    top: 4rem; // Stick below the header (header height is 4rem)
+    background: white;
+    z-index: 40; // Lower than header (50) but higher than content
+    padding: $spacing-4 0;
+    margin-bottom: $spacing-6;
+    border-bottom: 1px solid $gray-100;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); // Add subtle shadow when sticky
+    
+    @include mobile {
+      padding: $spacing-3 0;
+      margin-bottom: $spacing-4;
+      top: 3.25rem; // Mobile header height is 3.25rem
+    }
+  }
+
+  .veg-filters {
+    display: flex;
+    gap: $spacing-2;
+    margin-bottom: $spacing-4;
+    padding: 0 $mobile-padding;
+    
+    @include mobile {
+      gap: $spacing-1;
+      margin-bottom: $spacing-3;
+      padding: 0 $spacing-3;
+    }
+
+    .veg-filter-btn {
+      @include flex-center;
+      gap: $spacing-1;
+      padding: $spacing-2 $spacing-3;
+      border: 2px solid $gray-200;
+      border-radius: $border-radius-full;
+      background-color: white;
+      color: $gray-700;
+      font-weight: 500;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all $transition-fast;
+      white-space: nowrap;
+
+      @include mobile {
+        padding: 6px $spacing-2;
+        font-size: 0.8rem;
+        gap: 4px;
+      }
+
+      &:hover {
+        border-color: $primary-color;
+        background-color: $primary-light;
+        color: $primary-color;
+      }
+
+      &.active {
+        background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
+        border-color: $primary-color;
+        color: white;
+        box-shadow: $shadow-sm;
+      }
+
+      &.veg.active {
+        background: $success-color;
+        border-color: $success-color;
+      }
+
+      &.non-veg.active {
+        background: $error-color;
+        border-color: $error-color;
+      }
+
+      .veg-indicator {
+        width: 0.875rem;
+        height: 0.875rem;
+        border: 1.5px solid;
+        @include flex-center;
+        flex-shrink: 0;
+
+        @include mobile {
+          width: 0.75rem;
+          height: 0.75rem;
+          border-width: 1px;
+        }
+
+        &.veg {
+          border-color: $success-color;
+        }
+
+        &.non-veg {
+          border-color: $error-color;
+        }
+
+        .veg-dot {
+          width: 0.3rem;
+          height: 0.3rem;
+          border-radius: 50%;
+
+          @include mobile {
+            width: 0.25rem;
+            height: 0.25rem;
+          }
+        }
+
+        &.veg .veg-dot {
+          background-color: $success-color;
+        }
+
+        &.non-veg .veg-dot {
+          background-color: $error-color;
+        }
+      }
+    }
+  }
+
   .category-filters {
     display: flex;
     overflow-x: auto;
     gap: $spacing-3;
-    margin-bottom: $spacing-6;
     padding: 0 $mobile-padding $spacing-2;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
@@ -43,8 +157,7 @@
     
     @include mobile {
       gap: $spacing-2;
-      margin-bottom: $spacing-4;
-      padding-bottom: $spacing-3;
+      padding: 0 $spacing-3 $spacing-2;
     }
 
     .category-btn {

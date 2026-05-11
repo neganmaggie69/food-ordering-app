@@ -59,6 +59,43 @@
       }
     }
 
+    .logo-container {
+      @include flex-start;
+      align-items: center;
+      gap: $spacing-2;
+
+      @include mobile {
+        gap: $spacing-1;
+      }
+
+      .logo-image {
+        width: 2rem;
+        height: 2rem;
+        border-radius: $border-radius;
+        object-fit: cover;
+        
+        @include mobile {
+          width: 1.75rem;
+          height: 1.75rem;
+        }
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 0;
+        
+        @include mobile {
+          font-size: 1.125rem;
+        }
+      }
+    }
+
+    // Keep the old .logo class for backward compatibility
     .logo {
       font-size: 1.5rem;
       font-weight: 700;

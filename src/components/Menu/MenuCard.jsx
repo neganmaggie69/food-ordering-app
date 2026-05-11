@@ -9,15 +9,21 @@ const MenuCard = ({ item }) => {
   const quantity = cartItem ? cartItem.quantity : 0;
 
   const handleAdd = () => {
-    addToCart(item);
+    if (item.isActive) {
+      addToCart(item);
+    }
   };
 
   const handleIncrease = () => {
-    updateQuantity(item.id, quantity + 1);
+    if (item.isActive) {
+      updateQuantity(item.id, quantity + 1);
+    }
   };
 
   const handleDecrease = () => {
-    updateQuantity(item.id, quantity - 1);
+    if (item.isActive) {
+      updateQuantity(item.id, quantity - 1);
+    }
   };
 
   const handleImageError = (e) => {
@@ -25,7 +31,7 @@ const MenuCard = ({ item }) => {
   };
 
   return (
-    <div className="menu-card">
+    <div className={`menu-card ${!item.isActive ? 'disabled' : ''}`}>
       <img 
         src={item.image || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop&crop=center'} 
         alt={item.name} 
@@ -51,7 +57,11 @@ const MenuCard = ({ item }) => {
             )}
           </div>
 
-          {quantity === 0 ? (
+          {!item.isActive ? (
+            <div className="unavailable-badge">
+              Unavailable
+            </div>
+          ) : quantity === 0 ? (
             <button onClick={handleAdd} className="add-btn">
               <Plus />
               <span>Add</span>

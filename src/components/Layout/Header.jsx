@@ -5,6 +5,7 @@ import { useCart } from '../../contexts/CartContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import toast from 'react-hot-toast';
+import logoImage from '../../assets/logosc.jpg';
 import './Header.scss';
 
 const Header = ({ onMenuClick, onCartClick, onLoginClick }) => {
@@ -29,7 +30,10 @@ const Header = ({ onMenuClick, onCartClick, onLoginClick }) => {
           <button onClick={onMenuClick} className="menu-btn">
             <Menu />
           </button>
-          <h1 className="logo">SpiceCraft</h1>
+          <div className="logo-container">
+            <img src={logoImage} alt="SpiceCraft Logo" className="logo-image" />
+            <h1 className="logo">SpiceCraft</h1>
+          </div>
         </div>
 
         <div className="right-section">

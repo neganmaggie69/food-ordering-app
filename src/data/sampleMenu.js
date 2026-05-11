@@ -87,7 +87,7 @@ export const sampleMenuItems = [
     price: 40,
     category: "Beverages",
     isVeg: true,
-    isActive: true,
+    isActive: false, // This item will show as disabled/unavailable
     image: "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=400"
   }
 ];

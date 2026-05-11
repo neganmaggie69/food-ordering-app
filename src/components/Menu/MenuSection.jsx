@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-import { populateMenuItems } from '../../utils/populateData';
 import MenuCard from './MenuCard';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import './MenuSection.scss';
@@ -10,15 +9,11 @@ const MenuSection = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [vegFilter, setVegFilter] = useState('all'); // 'all', 'veg', 'non-veg'
 
   useEffect(() => {
-    // Populate sample data if needed
-    populateMenuItems();
-
-    const q = query(
-      collection(db, 'menuItems'),
-      where('isActive', '==', true)
-    );
+    // Query all menu items (both active and inactive)
+    const q = query(collection(db, 'menuItems'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const items = snapshot.docs.map(doc => ({
@@ -34,9 +29,14 @@ const MenuSection = () => {
 
   const categories = ['all', ...new Set(menuItems.map(item => item.category))];
   
-  const filteredItems = selectedCategory === 'all' 
-    ? menuItems 
-    : menuItems.filter(item => item.category === selectedCategory);
+  // Filter by category and veg preference
+  const filteredItems = menuItems.filter(item => {
+    const categoryMatch = selectedCategory === 'all' || item.category === selectedCategory;
+    const vegMatch = vegFilter === 'all' || 
+                    (vegFilter === 'veg' && item.isVeg) || 
+                    (vegFilter === 'non-veg' && !item.isVeg);
+    return categoryMatch && vegMatch;
+  });
 
   if (loading) {
     return <LoadingSpinner />;
@@ -47,16 +47,48 @@ const MenuSection = () => {
       <div className="container">
         <h2 className="section-title">Our Menu</h2>
         
-        <div className="category-filters">
-          {categories.map(category => (
+        {/* Sticky filter container */}
+        <div className="filters-container">
+          {/* Veg/Non-veg Filter */}
+          <div className="veg-filters">
             <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
+              onClick={() => setVegFilter('all')}
+              className={`veg-filter-btn ${vegFilter === 'all' ? 'active' : ''}`}
             >
-              {category === 'all' ? 'All Items' : category}
+              All
             </button>
-          ))}
+            <button
+              onClick={() => setVegFilter('veg')}
+              className={`veg-filter-btn veg ${vegFilter === 'veg' ? 'active' : ''}`}
+            >
+              <div className="veg-indicator veg">
+                <div className="veg-dot" />
+              </div>
+              Veg
+            </button>
+            <button
+              onClick={() => setVegFilter('non-veg')}
+              className={`veg-filter-btn non-veg ${vegFilter === 'non-veg' ? 'active' : ''}`}
+            >
+              <div className="veg-indicator non-veg">
+                <div className="veg-dot" />
+              </div>
+              Non-Veg
+            </button>
+          </div>
+
+          {/* Category Filters */}
+          <div className="category-filters">
+            {categories.map(category => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
+              >
+                {category === 'all' ? 'All Items' : category}
+              </button>
+            ))}
+          </div>
         </div>
 
         {filteredItems.length === 0 ? (
