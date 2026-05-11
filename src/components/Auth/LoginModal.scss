@@ -1,0 +1,207 @@
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.login-modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  @include flex-center;
+  z-index: 1000;
+  padding: $spacing-4;
+  backdrop-filter: blur(4px);
+
+  @include mobile {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: $border-radius-2xl;
+    width: 100%;
+    max-width: 28rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: $shadow-xl;
+    animation: modalSlideIn 0.3s ease-out;
+    border: 1px solid $gray-100;
+
+    @include mobile {
+      @include mobile-modal;
+      border-radius: $border-radius-2xl $border-radius-2xl 0 0;
+      animation: modalSlideUp 0.3s ease-out;
+    }
+  }
+
+  .modal-header {
+    @include flex-between;
+    padding: $spacing-6;
+    border-bottom: 1px solid $gray-100;
+
+    @include mobile {
+      padding: $spacing-4;
+      position: relative;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: $spacing-2;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2rem;
+        height: 0.25rem;
+        background-color: $gray-300;
+        border-radius: $border-radius-full;
+      }
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+      
+      @include mobile {
+        font-size: 1.25rem;
+        margin-top: $spacing-2;
+      }
+    }
+
+    .close-btn {
+      @include flex-center;
+      @include touch-target;
+      border: none;
+      background: none;
+      color: $gray-500;
+      border-radius: $border-radius-full;
+      cursor: pointer;
+      transition: all $transition-fast;
+
+      &:hover {
+        color: $gray-700;
+        background-color: $gray-100;
+      }
+
+      svg {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: $spacing-6;
+    
+    @include mobile {
+      padding: $spacing-4;
+    }
+
+    .form-group {
+      margin-bottom: $spacing-5;
+
+      label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: $gray-700;
+        margin-bottom: $spacing-3;
+      }
+
+      .input-wrapper {
+        position: relative;
+
+        input {
+          @include input-base;
+          
+          &.otp-input {
+            text-align: center;
+            font-size: 1.5rem;
+            letter-spacing: 0.2em;
+            font-weight: 600;
+            
+            @include mobile {
+              font-size: 1.25rem;
+            }
+          }
+
+          &:focus {
+            border-color: $primary-color;
+            box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+          }
+        }
+      }
+
+      .help-text {
+        font-size: 0.875rem;
+        color: $gray-500;
+        margin-top: $spacing-2;
+        line-height: 1.4;
+        
+        @include mobile {
+          font-size: 0.8rem;
+        }
+      }
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-3;
+
+      .btn-primary {
+        @include button-primary;
+        width: 100%;
+        padding: $spacing-4;
+        font-size: 1rem;
+        font-weight: 600;
+        
+        @include mobile {
+          padding: $spacing-4;
+          font-size: 1rem;
+        }
+      }
+
+      .btn-link {
+        background: none;
+        border: none;
+        color: $primary-color;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        padding: $spacing-3;
+        transition: all $transition-fast;
+        border-radius: $border-radius-lg;
+
+        &:hover {
+          color: $primary-hover;
+          background-color: $primary-light;
+        }
+      }
+    }
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

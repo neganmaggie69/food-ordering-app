@@ -1,0 +1,133 @@
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.menu-section {
+  padding: $spacing-6 0;
+  
+  @include mobile {
+    padding: $spacing-4 0;
+  }
+
+  .container {
+    @include mobile-container;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, $gray-800 0%, $gray-600 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: $spacing-6;
+    text-align: center;
+    
+    @include mobile {
+      font-size: 1.5rem;
+      margin-bottom: $spacing-4;
+    }
+  }
+
+  .category-filters {
+    display: flex;
+    overflow-x: auto;
+    gap: $spacing-3;
+    margin-bottom: $spacing-6;
+    padding: 0 $mobile-padding $spacing-2;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    
+    @include mobile {
+      gap: $spacing-2;
+      margin-bottom: $spacing-4;
+      padding-bottom: $spacing-3;
+    }
+
+    .category-btn {
+      padding: $spacing-3 $spacing-4;
+      border: 2px solid $gray-200;
+      border-radius: $border-radius-full;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all $transition-fast;
+      background-color: white;
+      color: $gray-700;
+      font-weight: 500;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+
+      @include mobile {
+        padding: $spacing-2 $spacing-3;
+        font-size: 0.85rem;
+      }
+
+      &:hover {
+        border-color: $primary-color;
+        background-color: $primary-light;
+        color: $primary-color;
+      }
+
+      &.active {
+        background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
+        border-color: $primary-color;
+        color: white;
+        box-shadow: $shadow-sm;
+        transform: translateY(-1px);
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: $spacing-16 $spacing-4;
+    
+    @include mobile {
+      padding: $spacing-12 $spacing-4;
+    }
+
+    p {
+      color: $gray-500;
+      font-size: 1.125rem;
+      font-weight: 500;
+      
+      @include mobile {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .menu-grid {
+    display: grid;
+    gap: $spacing-4;
+    padding: 0 $mobile-padding;
+
+    // Mobile: 2 columns like Zomato/Swiggy
+    @include mobile {
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-3;
+      padding: 0 $spacing-3;
+    }
+
+    // Tablet: 3 columns
+    @include tablet {
+      grid-template-columns: repeat(3, 1fr);
+      gap: $spacing-4;
+      padding: 0;
+    }
+
+    // Desktop: 4 columns
+    @include desktop {
+      grid-template-columns: repeat(4, 1fr);
+      gap: $spacing-6;
+    }
+
+    // Large screens: 5 columns for more items
+    @include large {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+}
