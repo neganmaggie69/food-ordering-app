@@ -5,7 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import CheckoutModal from './CheckoutModal';
 import './CartModal.scss';
 
-const CartModal = ({ isOpen, onClose, onLoginRequired }) => {
+const CartModal = ({ isOpen, onClose, onLoginRequired, onOrderSuccess }) => {
   const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems } = useCart();
   const { user } = useAuth();
   const [showCheckout, setShowCheckout] = useState(false);
@@ -100,6 +100,11 @@ const CartModal = ({ isOpen, onClose, onLoginRequired }) => {
         <CheckoutModal
           isOpen={showCheckout}
           onClose={() => setShowCheckout(false)}
+          onOrderSuccess={() => {
+            setShowCheckout(false);
+            onClose();
+            if (onOrderSuccess) onOrderSuccess();
+          }}
         />
       )}
     </>

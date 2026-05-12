@@ -405,6 +405,7 @@
   gap: $spacing-1;
   color: $gray-600;
   font-size: 0.85rem;
+  flex-wrap: wrap;
   
   @include mobile {
     font-size: 0.8rem;
@@ -414,6 +415,29 @@
     width: 14px;
     height: 14px;
     color: $gray-500;
+  }
+  
+  .payment-status {
+    padding: 1px $spacing-1;
+    border-radius: $border-radius-full;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: $spacing-1;
+    
+    &.paid {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    &.failed {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    &.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
   }
 }
 

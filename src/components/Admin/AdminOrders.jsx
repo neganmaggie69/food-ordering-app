@@ -197,7 +197,12 @@ const AdminOrders = () => {
                 <div className="order-details">
                   <div className="payment-info">
                     <CreditCard className="icon" />
-                    <span>{order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'UPI'}</span>
+                    <span>{order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</span>
+                    <span className={`payment-status ${order.paymentStatus || 'pending'}`}>
+                      {order.paymentStatus === 'paid' ? '✓ Paid' : 
+                       order.paymentStatus === 'failed' ? '✗ Failed' : 
+                       order.paymentMethod === 'cod' ? 'COD' : 'Pending'}
+                    </span>
                   </div>
                   
                   {order.address && (

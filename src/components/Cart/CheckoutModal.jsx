@@ -7,18 +7,87 @@ import { db } from '../../firebase/config';
 import toast from 'react-hot-toast';
 import './CheckoutModal.scss';
 
-const CheckoutModal = ({ isOpen, onClose }) => {
+const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
   const { cartItems, getTotalPrice, clearCart } = useCart();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [orderData, setOrderData] = useState({
     address: '',
-    paymentMethod: 'cod', // 'cod' or 'upi'
+    paymentMethod: 'cod', // 'cod' or 'razorpay'
     notes: ''
   });
 
   const handleInputChange = (field, value) => {
     setOrderData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const initializeRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleRazorpayPayment = async (orderDetails) => {
+    const res = await initializeRazorpay();
+    if (!res) {
+      toast.error('Razorpay SDK failed to load');
+      return false;
+    }
+
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_9WaeLLJnOFJCBz', // Replace with your key
+      amount: getTotalPrice() * 100, // Amount in paise
+      currency: 'INR',
+      name: 'SpiceCraft',
+      description: 'Food Order Payment',
+      image: '/logosc.jpg', // Your logo
+      method: {
+        upi: true,
+        card: true,
+        netbanking: true,
+        wallet: true
+      },
+      handler: async function (response) {
+        try {
+          // Save order with payment details
+          const finalOrder = {
+            ...orderDetails,
+            paymentId: response.razorpay_payment_id,
+            paymentStatus: 'paid',
+            razorpaySignature: response.razorpay_signature
+          };
+          
+          await addDoc(collection(db, 'orders'), finalOrder);
+          clearCart();
+          toast.success('Payment successful! Order placed.');
+          onClose();
+          if (onOrderSuccess) onOrderSuccess();
+        } catch (error) {
+          console.error('Error saving order:', error);
+          toast.error('Payment successful but order save failed. Please contact support.');
+        }
+      },
+      prefill: {
+        contact: user.phoneNumber,
+      },
+      theme: {
+        color: '#1e40af',
+      },
+    };
+
+    const paymentObject = new window.Razorpay(options);
+    
+    paymentObject.on('payment.failed', function (response) {
+      toast.error('Payment failed. Please try again.');
+      console.error('Payment failed:', response.error);
+    });
+    
+    paymentObject.open();
+    return true;
   };
 
   const handlePlaceOrder = async () => {
@@ -29,7 +98,7 @@ const CheckoutModal = ({ isOpen, onClose }) => {
 
     setLoading(true);
     try {
-      const order = {
+      const baseOrder = {
         userId: user.uid,
         userPhone: user.phoneNumber,
         items: cartItems,
@@ -38,15 +107,26 @@ const CheckoutModal = ({ isOpen, onClose }) => {
         paymentMethod: orderData.paymentMethod,
         notes: orderData.notes,
         status: 'pending',
+        paymentStatus: orderData.paymentMethod === 'cod' ? 'pending' : 'pending',
         createdAt: new Date(),
         updatedAt: new Date()
       };
 
-      await addDoc(collection(db, 'orders'), order);
-      
-      clearCart();
-      toast.success('Order placed successfully!');
-      onClose();
+      if (orderData.paymentMethod === 'razorpay') {
+        // For Razorpay payment
+        const success = await handleRazorpayPayment(baseOrder);
+        if (!success) {
+          setLoading(false);
+          return;
+        }
+      } else {
+        // For COD
+        await addDoc(collection(db, 'orders'), baseOrder);
+        clearCart();
+        toast.success('Order placed successfully!');
+        onClose();
+        if (onOrderSuccess) onOrderSuccess();
+      }
     } catch (error) {
       console.error('Error placing order:', error);
       toast.error('Error placing order. Please try again.');
@@ -122,19 +202,19 @@ const CheckoutModal = ({ isOpen, onClose }) => {
                   </div>
                 </label>
                 <label 
-                  className={`radio-option ${orderData.paymentMethod === 'upi' ? 'selected' : ''}`}
-                  onClick={() => handleInputChange('paymentMethod', 'upi')}
+                  className={`radio-option ${orderData.paymentMethod === 'razorpay' ? 'selected' : ''}`}
+                  onClick={() => handleInputChange('paymentMethod', 'razorpay')}
                 >
                   <input
                     type="radio"
                     name="paymentMethod"
-                    value="upi"
-                    checked={orderData.paymentMethod === 'upi'}
+                    value="razorpay"
+                    checked={orderData.paymentMethod === 'razorpay'}
                     onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
                   />
                   <div className="option-content">
                     <CreditCard />
-                    <span>UPI Payment</span>
+                    <span>Online Payment</span>
                   </div>
                 </label>
               </div>
@@ -160,7 +240,10 @@ const CheckoutModal = ({ isOpen, onClose }) => {
             disabled={loading}
             className="place-order-btn"
           >
-            {loading ? 'Placing Order...' : `Place Order - ₹${getTotalPrice()}`}
+            {loading ? 'Processing...' : 
+             orderData.paymentMethod === 'razorpay' ? 
+             `Pay ₹${getTotalPrice()}` : 
+             `Place Order - ₹${getTotalPrice()}`}
           </button>
         </div>
       </div>

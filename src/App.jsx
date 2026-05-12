@@ -18,6 +18,10 @@ function App() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [cartModalOpen, setCartModalOpen] = useState(false);
 
+  const handleOrderSuccess = () => {
+    setActiveSection('orders');
+  };
+
   const renderContent = () => {
     switch (activeSection) {
       case 'menu':
@@ -67,6 +71,7 @@ function App() {
               setCartModalOpen(false);
               setLoginModalOpen(true);
             }}
+            onOrderSuccess={handleOrderSuccess}
           />
           
           <Toaster
