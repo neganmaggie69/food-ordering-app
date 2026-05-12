@@ -105,6 +105,9 @@ const AdminMenu = () => {
     });
     setEditingItem(item);
     setShowAddForm(true);
+    
+    // Scroll to top to show the form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (itemId) => {
@@ -168,27 +171,29 @@ const AdminMenu = () => {
 
   return (
     <div className="admin-menu">
-      <div className="admin-menu-header">
-        <h2 className="page-title">Manage Menu</h2>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="add-item-btn"
-        >
-          <Plus className="icon" />
-          <span>Add Item</span>
-        </button>
-      </div>
+      <div className="sticky-header">
+        <div className="admin-menu-header">
+          <h2 className="page-title">Manage Menu</h2>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="add-item-btn"
+          >
+            <Plus className="icon" />
+            <span>Add Item</span>
+          </button>
+        </div>
 
-      <div className="search-container">
-        <div className="search-box">
-          <Search className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search items by name or category..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
+        <div className="search-container">
+          <div className="search-box">
+            <Search className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search items by name or category..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
         </div>
       </div>
 
@@ -354,9 +359,6 @@ const AdminMenu = () => {
 
               <div className="item-details">
                 <span className="category">{item.category}</span>
-                {item.description && (
-                  <p className="description">{item.description}</p>
-                )}
               </div>
 
               <div className="item-actions">
