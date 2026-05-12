@@ -146,7 +146,7 @@
         background-clip: text;
         
         @include mobile {
-          font-size: 1rem;
+          font-size: 0.8rem;
         }
       }
     }
@@ -154,7 +154,11 @@
     .menu-card-footer {
       @include flex-between;
       align-items: center;
-      gap: $spacing-2;
+      gap: $spacing-1;
+
+      @include mobile {
+        gap: 2px;
+      }
 
       .menu-card-info {
         @include flex-start;
@@ -170,10 +174,14 @@
           border-radius: $border-radius-full;
           border: 1px solid rgba($primary-color, 0.2);
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 100px;
           
           @include mobile {
-            font-size: 0.65rem;
-            padding: 1px 6px;
+            font-size: 0.6rem;
+            padding: 1px 4px;
+            max-width: 80px;
           }
         }
       }
@@ -292,10 +300,11 @@
         flex-shrink: 0;
         min-height: 28px;
         @include flex-center;
+        min-width: fit-content;
 
         @include mobile {
-          padding: 4px 8px;
-          font-size: 0.7rem;
+          padding: 4px 6px;
+          font-size: 0.65rem;
           min-height: 26px;
           border-radius: 4px;
         }
