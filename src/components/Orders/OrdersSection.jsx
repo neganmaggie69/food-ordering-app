@@ -1,22 +1,28 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { useAuth } from '../../contexts/AuthContext';
-import { Clock, CheckCircle, XCircle, Truck } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, Truck, ShoppingBag, Calendar, MapPin, CreditCard, Filter, ChevronDown } from 'lucide-react';
 import LoadingSpinner from '../UI/LoadingSpinner';
+import './OrdersSection.scss';
 
 const OrdersSection = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     const q = query(
       collection(db, 'orders'),
-      where('userId', '==', user.uid),
-      orderBy('createdAt', 'desc')
+      where('userId', '==', user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -24,12 +30,54 @@ const OrdersSection = () => {
         id: doc.id,
         ...doc.data()
       }));
+      
+      // Sort by createdAt in JavaScript instead of Firestore
+      ordersList.sort((a, b) => {
+        const aDate = a.createdAt?.toDate?.() || new Date(0);
+        const bDate = b.createdAt?.toDate?.() || new Date(0);
+        return bDate - aDate;
+      });
+      
       setOrders(ordersList);
+      setFilteredOrders(ordersList);
+      setLoading(false);
+    }, (error) => {
+      console.error('Error fetching orders:', error);
+      setOrders([]);
+      setFilteredOrders([]);
       setLoading(false);
     });
 
     return unsubscribe;
   }, [user]);
+
+  useEffect(() => {
+    if (statusFilter === 'all') {
+      setFilteredOrders(orders);
+    } else {
+      setFilteredOrders(orders.filter(order => order.status === statusFilter));
+    }
+  }, [statusFilter, orders]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showFilterDropdown && !event.target.closest('.filter-container')) {
+        setShowFilterDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showFilterDropdown]);
+
+  const filterOptions = [
+    { value: 'all', label: 'All Orders' },
+    { value: 'pending', label: 'Order Received' },
+    { value: 'preparing', label: 'Preparing' },
+    { value: 'ready', label: 'Ready for Pickup' },
+    { value: 'delivered', label: 'Delivered' },
+    { value: 'cancelled', label: 'Cancelled' }
+  ];
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -87,70 +135,107 @@ const OrdersSection = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">My Orders</h2>
+    <div className="orders-section">
+      <div className="orders-header">
+        <div className="header-left">
+          <h2 className="page-title">My Orders</h2>
+          <div className="orders-count">
+            {filteredOrders.length} {filteredOrders.length === 1 ? 'Order' : 'Orders'}
+          </div>
+        </div>
+        
+        {orders.length > 0 && (
+          <div className="filter-container">
+            <button 
+              className="filter-btn"
+              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+            >
+              <Filter className="icon" />
+              <span>{filterOptions.find(opt => opt.value === statusFilter)?.label}</span>
+              <ChevronDown className="chevron" />
+            </button>
+            
+            {showFilterDropdown && (
+              <div className="filter-dropdown">
+                {filterOptions.map(option => (
+                  <button
+                    key={option.value}
+                    className={`filter-option ${statusFilter === option.value ? 'active' : ''}`}
+                    onClick={() => {
+                      setStatusFilter(option.value);
+                      setShowFilterDropdown(false);
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       
       {orders.length === 0 ? (
-        <div className="text-center py-12">
-          <Truck className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg">No orders yet</p>
-          <p className="text-sm text-gray-400 mt-1">Your orders will appear here once you place them</p>
+        <div className="empty-state">
+          <div className="empty-content">
+            <ShoppingBag className="empty-icon" />
+            <h3>No orders yet</h3>
+            <p>Your delicious journey starts with your first order!</p>
+          </div>
+        </div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-content">
+            <Filter className="empty-icon" />
+            <h3>No orders found</h3>
+            <p>Try changing the filter to see more orders</p>
+          </div>
         </div>
       ) : (
-        <div className="space-y-4">
-          {orders.map(order => (
-            <div key={order.id} className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  {getStatusIcon(order.status)}
-                  <div>
-                    <h3 className="font-semibold text-gray-800">
-                      Order #{order.id.slice(-6)}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {order.createdAt?.toDate?.()?.toLocaleDateString() || 'Date not available'}
-                    </p>
+        <div className="orders-list">
+          {filteredOrders.map(order => (
+            <div key={order.id} className="order-card">
+              <div className="order-header">
+                <div className="order-info">
+                  <div className="order-number">#{order.id.slice(-6)}</div>
+                  <div className="order-date">
+                    <Calendar className="icon" />
+                    <span>{order.createdAt?.toDate?.()?.toLocaleDateString() || 'Date not available'}</span>
                   </div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                  {getStatusText(order.status)}
-                </span>
+                <div className={`order-status ${order.status}`}>
+                  {getStatusIcon(order.status)}
+                  <span>{getStatusText(order.status)}</span>
+                </div>
               </div>
 
-              <div className="border-t pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2">Items</h4>
-                    <div className="space-y-1">
-                      {order.items?.map((item, index) => (
-                        <div key={index} className="flex justify-between text-sm">
-                          <span>{item.name} x {item.quantity}</span>
-                          <span>₹{item.price * item.quantity}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2">Order Details</h4>
-                    <div className="text-sm space-y-1">
-                      <div className="flex justify-between">
-                        <span>Total Amount:</span>
-                        <span className="font-semibold">₹{order.totalAmount}</span>
+              <div className="order-content">
+                <div className="order-items">
+                  {order.items?.map((item, index) => (
+                    <div key={index} className="order-item">
+                      <span className="item-name">{item.name}</span>
+                      <div className="item-details">
+                        <span className="quantity">x{item.quantity}</span>
+                        <span className="price">₹{item.price * item.quantity}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Payment:</span>
-                        <span>{order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'UPI'}</span>
-                      </div>
-                      {order.address && (
-                        <div className="mt-2">
-                          <span className="font-medium">Address:</span>
-                          <p className="text-gray-600 mt-1">{order.address}</p>
-                        </div>
-                      )}
                     </div>
-                  </div>
+                  ))}
                 </div>
+
+                <div className="order-footer">
+                  <div className="payment-info">
+                    <CreditCard className="icon" />
+                    <span>{order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'UPI'}</span>
+                  </div>
+                  <div className="total-amount">₹{order.totalAmount}</div>
+                </div>
+                
+                {order.address && (
+                  <div className="address-section">
+                    <MapPin className="icon" />
+                    <span className="address">{order.address}</span>
+                  </div>
+                )}
               </div>
             </div>
           ))}

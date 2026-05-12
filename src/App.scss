@@ -7,4 +7,15 @@
 
 .main-content {
   padding-bottom: $spacing-6;
+  
+  // Ensure consistent alignment with header
+  > * {
+    padding-left: $spacing-3;
+    padding-right: $spacing-3;
+    
+    @include tablet-up {
+      padding-left: $spacing-6;
+      padding-right: $spacing-6;
+    }
+  }
 }

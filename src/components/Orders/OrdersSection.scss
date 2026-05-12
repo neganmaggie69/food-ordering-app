@@ -1,0 +1,458 @@
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.orders-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-top: $spacing-4;
+  padding-bottom: $spacing-4;
+  padding-left: 32px;
+  padding-right: 30px;
+}
+
+.orders-header {
+  @include flex-between;
+  margin-bottom: $spacing-6;
+  gap: $spacing-4;
+  
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-3;
+    margin-bottom: $spacing-4;
+  }
+}
+
+.header-left {
+  @include flex-start;
+  gap: $spacing-3;
+  
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-2;
+  }
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $gray-900;
+  margin: 0;
+  
+  @include mobile {
+    font-size: 1.25rem;
+  }
+}
+
+.orders-count {
+  background: $primary-light;
+  color: $primary-color;
+  padding: $spacing-1 $spacing-3;
+  border-radius: $border-radius-full;
+  font-size: 0.875rem;
+  font-weight: 500;
+  
+  @include mobile {
+    font-size: 0.8rem;
+    padding: $spacing-1 $spacing-2;
+  }
+}
+
+.filter-container {
+  position: relative;
+  
+  @include mobile {
+    width: 100%;
+  }
+}
+
+.filter-btn {
+  @include flex-start;
+  gap: $spacing-2;
+  padding: $spacing-3 $spacing-4;
+  background: white;
+  border: 2px solid $gray-200;
+  border-radius: $border-radius-lg;
+  color: $gray-700;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition-fast;
+  min-height: 44px;
+  
+  @include mobile {
+    width: 100%;
+    justify-content: space-between;
+    padding: $spacing-3;
+    min-height: 48px;
+  }
+  
+  &:hover {
+    border-color: $primary-color;
+    background: $primary-light;
+  }
+  
+  .icon {
+    width: 18px;
+    height: 18px;
+    color: $gray-500;
+  }
+  
+  .chevron {
+    width: 16px;
+    height: 16px;
+    color: $gray-400;
+    transition: transform $transition-fast;
+  }
+  
+  &:hover .chevron {
+    transform: rotate(180deg);
+  }
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-lg;
+  z-index: 50;
+  margin-top: $spacing-1;
+  overflow: hidden;
+  
+  @include mobile {
+    width: 100%;
+  }
+}
+
+.filter-option {
+  @include flex-start;
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  background: white;
+  border: none;
+  color: $gray-700;
+  cursor: pointer;
+  transition: background-color $transition-fast;
+  text-align: left;
+  
+  @include mobile {
+    padding: $spacing-3;
+  }
+  
+  &:hover {
+    background: $gray-50;
+  }
+  
+  &.active {
+    background: $primary-light;
+    color: $primary-color;
+    font-weight: 600;
+  }
+}
+
+.empty-state {
+  @include flex-center;
+  min-height: 400px;
+  
+  @include mobile {
+    min-height: 300px;
+    padding: $spacing-4;
+  }
+}
+
+.empty-content {
+  text-align: center;
+  color: $gray-500;
+  
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto $spacing-4;
+    color: $gray-300;
+    
+    @include mobile {
+      width: 48px;
+      height: 48px;
+    }
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $gray-700;
+    margin: 0 0 $spacing-2;
+    
+    @include mobile {
+      font-size: 1.1rem;
+    }
+  }
+  
+  p {
+    font-size: 0.95rem;
+    margin: 0;
+    
+    @include mobile {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.orders-list {
+  display: grid;
+  gap: $spacing-3;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-2;
+  }
+  
+  @include tablet {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+}
+
+.order-card {
+  @include card;
+  border-left: 4px solid $primary-color;
+  transition: all $transition-fast;
+  padding: $spacing-3;
+  
+  @include mobile {
+    margin: 0;
+    padding: $spacing-2;
+  }
+  
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+}
+
+.order-header {
+  @include flex-between;
+  margin-bottom: $spacing-3;
+  padding-bottom: $spacing-2;
+  border-bottom: 1px solid $gray-100;
+  
+  @include mobile {
+    margin-bottom: $spacing-2;
+    padding-bottom: $spacing-2;
+  }
+}
+
+.order-info {
+  .order-number {
+    font-weight: 700;
+    font-size: 1rem;
+    color: $gray-900;
+    margin-bottom: $spacing-1;
+    
+    @include mobile {
+      font-size: 0.95rem;
+    }
+  }
+  
+  .order-date {
+    @include flex-start;
+    gap: $spacing-1;
+    font-size: 0.8rem;
+    color: $gray-500;
+    
+    @include mobile {
+      font-size: 0.75rem;
+    }
+    
+    .icon {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}
+
+.order-status {
+  @include flex-start;
+  gap: $spacing-2;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $border-radius-full;
+  font-size: 0.8rem;
+  font-weight: 600;
+  
+  @include mobile {
+    font-size: 0.75rem;
+    padding: $spacing-1;
+    gap: $spacing-1;
+  }
+  
+  .icon {
+    width: 14px;
+    height: 14px;
+    
+    @include mobile {
+      width: 12px;
+      height: 12px;
+    }
+  }
+  
+  &.pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  
+  &.preparing {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+  
+  &.ready {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  
+  &.delivered {
+    background: #d1fae5;
+    color: #064e3b;
+  }
+  
+  &.cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+}
+
+.order-content {
+  @include flex-column;
+  gap: $spacing-3;
+  
+  @include mobile {
+    gap: $spacing-2;
+  }
+}
+
+.order-items {
+  background: $gray-50;
+  border-radius: $border-radius-lg;
+  padding: $spacing-2;
+  
+  @include mobile {
+    padding: $spacing-2;
+  }
+}
+
+.order-item {
+  @include flex-between;
+  padding: $spacing-1 0;
+  border-bottom: 1px solid $gray-200;
+  
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  
+  .item-name {
+    font-weight: 500;
+    color: $gray-800;
+    flex: 1;
+    font-size: 0.9rem;
+    
+    @include mobile {
+      font-size: 0.85rem;
+    }
+  }
+  
+  .item-details {
+    @include flex-start;
+    gap: $spacing-2;
+    
+    @include mobile {
+      gap: $spacing-1;
+    }
+    
+    .quantity {
+      color: $gray-600;
+      font-size: 0.85rem;
+      
+      @include mobile {
+        font-size: 0.8rem;
+      }
+    }
+    
+    .price {
+      font-weight: 600;
+      color: $gray-800;
+      font-size: 0.9rem;
+      
+      @include mobile {
+        font-size: 0.85rem;
+      }
+    }
+  }
+}
+
+.order-footer {
+  @include flex-between;
+  align-items: center;
+  padding-top: $spacing-2;
+  border-top: 1px solid $gray-200;
+}
+
+.payment-info {
+  @include flex-start;
+  gap: $spacing-1;
+  color: $gray-600;
+  font-size: 0.85rem;
+  
+  @include mobile {
+    font-size: 0.8rem;
+  }
+  
+  .icon {
+    width: 14px;
+    height: 14px;
+    color: $gray-500;
+  }
+}
+
+.total-amount {
+  font-weight: 700;
+  font-size: 1rem;
+  color: $primary-color;
+  
+  @include mobile {
+    font-size: 0.95rem;
+  }
+}
+
+.address-section {
+  @include flex-start;
+  gap: $spacing-2;
+  color: $gray-600;
+  font-size: 0.85rem;
+  padding-top: $spacing-2;
+  border-top: 1px solid $gray-100;
+  
+  @include mobile {
+    font-size: 0.8rem;
+    gap: $spacing-1;
+  }
+  
+  .icon {
+    width: 14px;
+    height: 14px;
+    color: $gray-500;
+    flex-shrink: 0;
+  }
+  
+  .address {
+    @include text-clamp(2);
+  }
+}
+
+// Remove tap highlight on mobile
+* {
+  -webkit-tap-highlight-color: transparent;
+}

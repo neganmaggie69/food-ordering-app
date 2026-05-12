@@ -1,0 +1,556 @@
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.admin-orders {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-top: $spacing-4;
+  padding-bottom: $spacing-4;
+  padding-left: 32px;
+  padding-right: 30px;
+}
+
+.orders-header {
+  @include flex-between;
+  margin-bottom: $spacing-6;
+  gap: $spacing-4;
+  
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-3;
+    margin-bottom: $spacing-4;
+  }
+}
+
+.header-left {
+  @include flex-start;
+  gap: $spacing-3;
+  
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-2;
+  }
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $gray-900;
+  margin: 0;
+  
+  @include mobile {
+    font-size: 1.25rem;
+  }
+}
+
+.orders-count {
+  background: $primary-light;
+  color: $primary-color;
+  padding: $spacing-1 $spacing-3;
+  border-radius: $border-radius-full;
+  font-size: 0.875rem;
+  font-weight: 500;
+  
+  @include mobile {
+    font-size: 0.8rem;
+    padding: $spacing-1 $spacing-2;
+  }
+}
+
+.filter-container {
+  position: relative;
+  
+  @include mobile {
+    width: 100%;
+  }
+}
+
+.filter-btn {
+  @include flex-start;
+  gap: $spacing-2;
+  padding: $spacing-3 $spacing-4;
+  background: white;
+  border: 2px solid $gray-200;
+  border-radius: $border-radius-lg;
+  color: $gray-700;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition-fast;
+  min-height: 44px;
+  
+  @include mobile {
+    width: 100%;
+    justify-content: space-between;
+    padding: $spacing-3;
+    min-height: 48px;
+  }
+  
+  &:hover {
+    border-color: $primary-color;
+    background: $primary-light;
+  }
+  
+  .icon {
+    width: 18px;
+    height: 18px;
+    color: $gray-500;
+  }
+  
+  .chevron {
+    width: 16px;
+    height: 16px;
+    color: $gray-400;
+    transition: transform $transition-fast;
+  }
+  
+  &:hover .chevron {
+    transform: rotate(180deg);
+  }
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-lg;
+  z-index: 50;
+  margin-top: $spacing-1;
+  overflow: hidden;
+  
+  @include mobile {
+    width: 100%;
+  }
+}
+
+.filter-option {
+  @include flex-between;
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  background: white;
+  border: none;
+  color: $gray-700;
+  cursor: pointer;
+  transition: background-color $transition-fast;
+  
+  @include mobile {
+    padding: $spacing-3;
+  }
+  
+  &:hover {
+    background: $gray-50;
+  }
+  
+  &.active {
+    background: $primary-light;
+    color: $primary-color;
+    font-weight: 600;
+  }
+  
+  .count {
+    background: $gray-100;
+    color: $gray-600;
+    padding: $spacing-1 $spacing-2;
+    border-radius: $border-radius-full;
+    font-size: 0.75rem;
+    font-weight: 500;
+    min-width: 24px;
+    text-align: center;
+  }
+  
+  &.active .count {
+    background: $primary-color;
+    color: white;
+  }
+}
+
+.empty-state {
+  @include flex-center;
+  min-height: 400px;
+  
+  @include mobile {
+    min-height: 300px;
+    padding: $spacing-4;
+  }
+}
+
+.empty-content {
+  text-align: center;
+  color: $gray-500;
+  
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto $spacing-4;
+    color: $gray-300;
+    
+    @include mobile {
+      width: 48px;
+      height: 48px;
+    }
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $gray-700;
+    margin: 0 0 $spacing-2;
+    
+    @include mobile {
+      font-size: 1.1rem;
+    }
+  }
+  
+  p {
+    font-size: 0.95rem;
+    margin: 0;
+    
+    @include mobile {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.orders-grid {
+  display: grid;
+  gap: $spacing-3;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-2;
+  }
+  
+  @include tablet {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+}
+
+.order-card {
+  @include card;
+  border-left: 4px solid $gray-300;
+  transition: all $transition-fast;
+  padding: $spacing-3;
+  
+  @include mobile {
+    margin: 0;
+    padding: $spacing-2;
+  }
+  
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+  
+  &.pending {
+    border-left-color: #f59e0b;
+  }
+  
+  &.preparing {
+    border-left-color: #3b82f6;
+  }
+  
+  &.ready {
+    border-left-color: #10b981;
+  }
+  
+  &.delivered {
+    border-left-color: #059669;
+  }
+  
+  &.cancelled {
+    border-left-color: #ef4444;
+  }
+}
+
+.order-header {
+  @include flex-between;
+  margin-bottom: $spacing-4;
+  padding-bottom: $spacing-3;
+  border-bottom: 1px solid $gray-100;
+  
+  @include mobile {
+    margin-bottom: $spacing-3;
+    padding-bottom: $spacing-2;
+  }
+}
+
+.order-info {
+  .order-number {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: $gray-900;
+    
+    @include mobile {
+      font-size: 1rem;
+    }
+  }
+  
+  .order-time {
+    font-size: 0.85rem;
+    color: $gray-500;
+    margin-top: $spacing-1;
+    
+    @include mobile {
+      font-size: 0.8rem;
+    }
+  }
+}
+
+.order-status {
+  @include flex-start;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $border-radius-full;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  
+  @include mobile {
+    font-size: 0.8rem;
+    padding: $spacing-1 $spacing-2;
+  }
+  
+  .icon {
+    width: 16px;
+    height: 16px;
+    
+    @include mobile {
+      width: 14px;
+      height: 14px;
+    }
+  }
+  
+  &.pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  
+  &.preparing {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+  
+  &.ready {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  
+  &.delivered {
+    background: #d1fae5;
+    color: #064e3b;
+  }
+  
+  &.cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+}
+
+.order-content {
+  @include flex-column;
+  gap: $spacing-4;
+  
+  @include mobile {
+    gap: $spacing-3;
+  }
+}
+
+.customer-info {
+  @include flex-start;
+  gap: $spacing-2;
+  color: $gray-700;
+  font-weight: 500;
+  
+  .icon {
+    width: 16px;
+    height: 16px;
+    color: $gray-500;
+  }
+  
+  .phone-link {
+    color: $primary-color;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color $transition-fast;
+    
+    &:hover {
+      color: $primary-hover;
+      text-decoration: underline;
+    }
+    
+    &:active {
+      color: darken($primary-color, 10%);
+    }
+  }
+}
+
+.order-items {
+  background: $gray-50;
+  border-radius: $border-radius-lg;
+  padding: $spacing-3;
+  
+  @include mobile {
+    padding: $spacing-2;
+  }
+}
+
+.order-item {
+  @include flex-between;
+  padding: $spacing-2 0;
+  border-bottom: 1px solid $gray-200;
+  
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  
+  .item-name {
+    font-weight: 500;
+    color: $gray-800;
+    flex: 1;
+    
+    @include mobile {
+      font-size: 0.9rem;
+    }
+  }
+  
+  .item-details {
+    @include flex-start;
+    gap: $spacing-3;
+    
+    @include mobile {
+      gap: $spacing-2;
+    }
+    
+    .quantity {
+      color: $gray-600;
+      font-size: 0.9rem;
+      
+      @include mobile {
+        font-size: 0.85rem;
+      }
+    }
+    
+    .price {
+      font-weight: 600;
+      color: $gray-800;
+      
+      @include mobile {
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+.total-row {
+  @include flex-between;
+  padding-top: $spacing-3;
+  margin-top: $spacing-2;
+  border-top: 2px solid $gray-200;
+  font-weight: 700;
+  color: $gray-900;
+  
+  .total-amount {
+    font-size: 1.1rem;
+    color: $primary-color;
+    
+    @include mobile {
+      font-size: 1rem;
+    }
+  }
+}
+
+.order-details {
+  @include flex-column;
+  gap: $spacing-2;
+}
+
+.payment-info,
+.address-info {
+  @include flex-start;
+  gap: $spacing-2;
+  color: $gray-600;
+  font-size: 0.9rem;
+  
+  @include mobile {
+    font-size: 0.85rem;
+  }
+  
+  .icon {
+    width: 16px;
+    height: 16px;
+    color: $gray-500;
+    flex-shrink: 0;
+  }
+  
+  .address {
+    @include text-clamp(2);
+  }
+}
+
+.order-actions {
+  @include flex-start;
+  gap: $spacing-2;
+  margin-top: $spacing-2;
+  
+  @include mobile {
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+}
+
+.action-btn {
+  @include button-base;
+  font-size: 0.9rem;
+  padding: $spacing-2 $spacing-4;
+  flex: 1;
+  
+  @include mobile {
+    width: 100%;
+    padding: $spacing-3;
+    font-size: 0.95rem;
+  }
+  
+  &.primary {
+    @include button-primary;
+  }
+  
+  &.success {
+    background: linear-gradient(135deg, $success-color 0%, darken($success-color, 5%) 100%);
+    color: white;
+    box-shadow: $shadow-sm;
+    
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, darken($success-color, 5%) 0%, darken($success-color, 10%) 100%);
+      box-shadow: $shadow-md;
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.danger {
+    background: linear-gradient(135deg, $error-color 0%, darken($error-color, 5%) 100%);
+    color: white;
+    box-shadow: $shadow-sm;
+    
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, darken($error-color, 5%) 0%, darken($error-color, 10%) 100%);
+      box-shadow: $shadow-md;
+      transform: translateY(-1px);
+    }
+  }
+  
+  &.full-width {
+    width: 100%;
+  }
+}
+
+// Remove tap highlight on mobile
+* {
+  -webkit-tap-highlight-color: transparent;
+}

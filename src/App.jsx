@@ -41,6 +41,7 @@ function App() {
             onMenuClick={() => setSidebarOpen(true)}
             onCartClick={() => setCartModalOpen(true)}
             onLoginClick={() => setLoginModalOpen(true)}
+            onLogoClick={() => setActiveSection('menu')}
           />
           
           <Sidebar
