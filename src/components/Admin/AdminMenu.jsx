@@ -3,6 +3,8 @@ import { collection, query, onSnapshot, addDoc, doc, updateDoc, deleteDoc } from
 import { db } from '../../firebase/config';
 import { Plus, Edit, Trash2, Save, X, Check, DollarSign, Search } from 'lucide-react';
 import LoadingSpinner from '../UI/LoadingSpinner';
+import ImageUpload from '../UI/ImageUpload';
+import { uploadMenuItemImage, deleteMenuItemImage } from '../../utils/imageUpload';
 import toast from 'react-hot-toast';
 import './AdminMenu.scss';
 
@@ -15,13 +17,16 @@ const AdminMenu = () => {
   const [editingPrice, setEditingPrice] = useState(null);
   const [tempPrice, setTempPrice] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     price: '',
     category: '',
     isVeg: true,
     isActive: true,
-    image: ''
+    image: '',
+    imagePath: ''
   });
 
   useEffect(() => {
@@ -55,8 +60,10 @@ const AdminMenu = () => {
       category: '',
       isVeg: true,
       isActive: true,
-      image: ''
+      image: '',
+      imagePath: ''
     });
+    setSelectedImage(null);
     setShowAddForm(false);
     setEditingItem(null);
   };
@@ -70,9 +77,41 @@ const AdminMenu = () => {
     }
 
     try {
+      setImageUploading(true);
+      
+      let imageData = {
+        image: formData.image,
+        imagePath: formData.imagePath
+      };
+
+      // Handle image upload if a new image is selected
+      if (selectedImage) {
+        try {
+          const uploadResult = await uploadMenuItemImage(selectedImage, editingItem?.id);
+          imageData = {
+            image: uploadResult.url,
+            imagePath: uploadResult.path
+          };
+          
+          // Delete old image if editing and had previous image
+          if (editingItem && editingItem.imagePath) {
+            await deleteMenuItemImage(editingItem.imagePath);
+          }
+        } catch (imageError) {
+          console.error('Image upload error:', imageError);
+          toast.error('Failed to upload image. Please try again.');
+          setImageUploading(false);
+          return;
+        }
+      }
+
       const itemData = {
-        ...formData,
+        name: formData.name,
         price: parseFloat(formData.price),
+        category: formData.category,
+        isVeg: formData.isVeg,
+        isActive: formData.isActive,
+        ...imageData,
         updatedAt: new Date()
       };
 
@@ -91,6 +130,8 @@ const AdminMenu = () => {
     } catch (error) {
       console.error('Error saving item:', error);
       toast.error('Error saving item');
+    } finally {
+      setImageUploading(false);
     }
   };
 
@@ -101,8 +142,10 @@ const AdminMenu = () => {
       category: item.category,
       isVeg: item.isVeg,
       isActive: item.isActive,
-      image: item.image || ''
+      image: item.image || '',
+      imagePath: item.imagePath || ''
     });
+    setSelectedImage(null);
     setEditingItem(item);
     setShowAddForm(true);
     
@@ -113,7 +156,16 @@ const AdminMenu = () => {
   const handleDelete = async (itemId) => {
     if (window.confirm('Are you sure you want to delete this item?')) {
       try {
+        const item = menuItems.find(item => item.id === itemId);
+        
+        // Delete the item from Firestore
         await deleteDoc(doc(db, 'menuItems', itemId));
+        
+        // Delete associated image if exists
+        if (item && item.imagePath) {
+          await deleteMenuItemImage(item.imagePath);
+        }
+        
         toast.success('Item deleted successfully');
       } catch (error) {
         console.error('Error deleting item:', error);
@@ -163,6 +215,15 @@ const AdminMenu = () => {
   const cancelPriceEdit = () => {
     setEditingPrice(null);
     setTempPrice('');
+  };
+
+  const handleImageSelect = (file) => {
+    setSelectedImage(file);
+  };
+
+  const handleImageRemove = () => {
+    setSelectedImage(null);
+    setFormData(prev => ({ ...prev, image: '', imagePath: '' }));
   };
 
   if (loading) {
@@ -246,16 +307,17 @@ const AdminMenu = () => {
                   required
                 />
               </div>
+            </div>
 
-              <div className="form-group">
-                <label>Image URL</label>
-                <input
-                  type="url"
-                  value={formData.image}
-                  onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
+            <div className="form-group full-width">
+              <label>Item Image</label>
+              <ImageUpload
+                currentImage={formData.image}
+                onImageSelect={handleImageSelect}
+                onImageRemove={handleImageRemove}
+                loading={imageUploading}
+                disabled={imageUploading}
+              />
             </div>
 
             <div className="form-options">
