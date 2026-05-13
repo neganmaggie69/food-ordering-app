@@ -1,0 +1,195 @@
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.footer {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  color: $gray-800;
+  margin-top: $spacing-12;
+  border-top: 1px solid #cbd5e1;
+  
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: $spacing-12 $spacing-6;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: $spacing-8;
+    
+    @include tablet {
+      grid-template-columns: 1fr;
+      gap: $spacing-6;
+      padding: $spacing-8 $spacing-4;
+    }
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $spacing-6;
+      padding: $spacing-6 $spacing-4;
+    }
+
+    .footer-section {
+      .footer-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 0 0 $spacing-4 0;
+        
+        @include mobile {
+          font-size: 1.5rem;
+        }
+      }
+
+      .footer-description {
+        color: $gray-700;
+        line-height: 1.6;
+        margin: 0 0 $spacing-4 0;
+        font-size: 1rem;
+        
+        @include mobile {
+          font-size: 0.9rem;
+        }
+      }
+
+      .social-links {
+        @include flex-start;
+        gap: $spacing-3;
+        margin-top: $spacing-4;
+
+        .social-link {
+          @include flex-center;
+          width: 2.5rem;
+          height: 2.5rem;
+          border-radius: 50%;
+          transition: all $transition-fast;
+          text-decoration: none;
+
+          .social-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+          }
+
+          &.youtube {
+            background: #ff0000;
+            color: white;
+
+            &:hover {
+              background: darken(#ff0000, 10%);
+              transform: translateY(-2px);
+            }
+          }
+
+          &.instagram {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: $shadow-md;
+            }
+          }
+
+          &.whatsapp {
+            background: #25d366;
+            color: white;
+
+            &:hover {
+              background: darken(#25d366, 10%);
+              transform: translateY(-2px);
+            }
+          }
+        }
+      }
+
+      .section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: $gray-800;
+        margin: 0 0 $spacing-4 0;
+        
+        @include mobile {
+          font-size: 1rem;
+        }
+      }
+
+      .contact-items {
+        @include flex-column;
+        gap: $spacing-3;
+
+        .contact-item {
+          @include flex-start;
+          align-items: flex-start;
+          gap: $spacing-2;
+          color: $gray-700;
+          font-size: 0.9rem;
+          line-height: 1.5;
+
+          .contact-icon {
+            width: 1rem;
+            height: 1rem;
+            color: $primary-color;
+            flex-shrink: 0;
+            margin-top: 2px;
+          }
+        }
+      }
+    }
+  }
+
+  .footer-bottom {
+    border-top: 1px solid #cbd5e1;
+    background: rgba(148, 163, 184, 0.1);
+
+    .footer-bottom-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: $spacing-4 $spacing-6;
+      @include flex-between;
+      align-items: center;
+      
+      @include mobile {
+        flex-direction: column;
+        gap: $spacing-2;
+        padding: $spacing-4;
+        text-align: center;
+      }
+
+      .copyright {
+        font-size: 0.875rem;
+        color: $gray-500;
+        margin: 0;
+      }
+
+      .footer-links {
+        @include flex-start;
+        gap: $spacing-4;
+        
+        @include mobile {
+          gap: $spacing-3;
+        }
+
+        .footer-link {
+          font-size: 0.875rem;
+          color: $gray-500;
+          cursor: pointer;
+          transition: color $transition-fast;
+
+          &:hover {
+            color: $primary-color;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Ensure footer doesn't interfere with floating contact button
+.footer {
+  padding-bottom: $spacing-4;
+  
+  @include mobile {
+    padding-bottom: $spacing-6; // Extra space for floating button on mobile
+  }
+}

@@ -4,6 +4,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import Header from './components/Layout/Header';
 import Sidebar from './components/Layout/Sidebar';
+import FloatingContact from './components/Layout/FloatingContact';
+import Footer from './components/Layout/Footer';
 import MenuSection from './components/Menu/MenuSection';
 import OrdersSection from './components/Orders/OrdersSection';
 import AdminOrders from './components/Admin/AdminOrders';
@@ -58,6 +60,12 @@ function App() {
           <main className="main-content">
             {renderContent()}
           </main>
+          
+          {/* Footer */}
+          <Footer />
+          
+          {/* Floating Contact Buttons */}
+          <FloatingContact />
           
           <LoginModal
             isOpen={loginModalOpen}
