@@ -26,6 +26,68 @@
       font-size: 1.75rem;
       margin-bottom: $spacing-4;
     }
+
+    .greeting-text {
+      display: block;
+      animation: slideInFromLeft 1s ease-out;
+      background: linear-gradient(135deg, #2d5a5a 0%, #ff8c42 50%, #2d5a5a 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: slideInFromLeft 1s ease-out, gradientShift 3s ease-in-out infinite;
+      
+      @include mobile {
+        font-size: 1.5rem;
+      }
+    }
+
+    .subtitle {
+      display: block;
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #ff8c42;
+      margin-top: $spacing-2;
+      animation: slideInFromRight 1s ease-out 0.3s both;
+      font-style: italic;
+      
+      @include mobile {
+        font-size: 1rem;
+        margin-top: $spacing-1;
+      }
+    }
+  }
+
+  // Animations
+  @keyframes slideInFromLeft {
+    0% {
+      transform: translateX(-100px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInFromRight {
+    0% {
+      transform: translateX(100px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes gradientShift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
   }
 
   .filters-container {

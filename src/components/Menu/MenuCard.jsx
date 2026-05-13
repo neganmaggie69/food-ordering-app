@@ -1,9 +1,11 @@
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
 import { useCart } from '../../contexts/CartContext';
 import './MenuCard.scss';
 
 const MenuCard = ({ item }) => {
   const { cartItems, addToCart, updateQuantity } = useCart();
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   
   const cartItem = cartItems.find(cartItem => cartItem.id === item.id);
   const quantity = cartItem ? cartItem.quantity : 0;
@@ -30,6 +32,13 @@ const MenuCard = ({ item }) => {
     e.target.src = 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop&crop=center';
   };
 
+  const toggleDescription = () => {
+    setIsDescriptionExpanded(!isDescriptionExpanded);
+  };
+
+  // Check if description is long enough to need truncation (roughly 80 characters)
+  const needsTruncation = item.description && item.description.length > 35;
+
   return (
     <div className={`menu-card ${!item.isActive ? 'disabled' : ''}`}>
       <img 
@@ -51,6 +60,32 @@ const MenuCard = ({ item }) => {
           </div>
           <span className="menu-card-price">₹{item.price}</span>
         </div>
+
+        {item.description && (
+          <div className="menu-card-description-container">
+            <p className={`menu-card-description ${isDescriptionExpanded ? 'expanded' : ''}`}>
+              {item.description}
+            </p>
+            {needsTruncation && (
+              <button 
+                onClick={toggleDescription}
+                className="see-more-btn"
+              >
+                {isDescriptionExpanded ? (
+                  <>
+                    <span>See less</span>
+                    <ChevronUp className="chevron-icon" />
+                  </>
+                ) : (
+                  <>
+                    <span>See more</span>
+                    <ChevronDown className="chevron-icon" />
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        )}
 
         <div className="menu-card-footer">
           <div className="menu-card-info">

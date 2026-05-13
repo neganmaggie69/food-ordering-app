@@ -153,6 +153,65 @@
       }
     }
 
+    .menu-card-description-container {
+      margin: 0 0 $spacing-3 0;
+      
+      @include mobile {
+        margin-bottom: $spacing-2;
+      }
+
+      .menu-card-description {
+        font-size: 0.85rem;
+        color: $gray-600;
+        line-height: 1.4;
+        margin: 0;
+        transition: all $transition-normal;
+        
+        @include mobile {
+          font-size: 0.75rem;
+          @include text-clamp(2); // Limit to 2 lines on mobile by default
+        }
+
+        &.expanded {
+          @include mobile {
+            -webkit-line-clamp: unset;
+            -webkit-box-orient: unset;
+            overflow: visible;
+            display: block;
+          }
+        }
+      }
+
+      .see-more-btn {
+        display: none; // Hidden on desktop
+        
+        @include mobile {
+          display: flex;
+          align-items: center;
+          gap: 2px;
+          background: none;
+          border: none;
+          color: $primary-color;
+          font-size: 0.7rem;
+          font-weight: 600;
+          cursor: pointer;
+          padding: 2px 0;
+          margin-top: 2px;
+          transition: all $transition-fast;
+
+          &:hover {
+            color: $primary-hover;
+          }
+
+          .chevron-icon {
+            width: 0.75rem;
+            height: 0.75rem;
+            transition: transform $transition-fast;
+          }
+        }
+      }
+    }
+
     .menu-card-footer {
       @include flex-between;
       align-items: center;

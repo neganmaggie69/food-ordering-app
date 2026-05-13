@@ -23,6 +23,7 @@ const AdminMenu = () => {
     name: '',
     price: '',
     category: '',
+    description: '',
     isVeg: true,
     isActive: true,
     image: '',
@@ -58,6 +59,7 @@ const AdminMenu = () => {
       name: '',
       price: '',
       category: '',
+      description: '',
       isVeg: true,
       isActive: true,
       image: '',
@@ -109,6 +111,7 @@ const AdminMenu = () => {
         name: formData.name,
         price: parseFloat(formData.price),
         category: formData.category,
+        description: formData.description,
         isVeg: formData.isVeg,
         isActive: formData.isActive,
         ...imageData,
@@ -140,6 +143,7 @@ const AdminMenu = () => {
       name: item.name,
       price: item.price.toString(),
       category: item.category,
+      description: item.description || '',
       isVeg: item.isVeg,
       isActive: item.isActive,
       image: item.image || '',
@@ -309,6 +313,19 @@ const AdminMenu = () => {
               </div>
             </div>
 
+            <div className="form-row">
+              <div className="form-group full-width">
+                <label>Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Brief description of the item (optional)"
+                  rows="3"
+                  className="form-textarea"
+                />
+              </div>
+            </div>
+
             <div className="form-group full-width">
               <label>Item Image</label>
               <ImageUpload
@@ -421,6 +438,9 @@ const AdminMenu = () => {
 
               <div className="item-details">
                 <span className="category">{item.category}</span>
+                {item.description && (
+                  <p className="description">{item.description}</p>
+                )}
               </div>
 
               <div className="item-actions">

@@ -636,9 +636,8 @@
             color: $gray-600;
             font-size: 0.875rem;
             line-height: 1.4;
-            margin: 0;
+            margin: $spacing-1 0 0 0;
             @include text-clamp(2);
-            display: none; // Hidden as requested
           }
         }
 
