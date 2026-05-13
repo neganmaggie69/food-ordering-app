@@ -5,7 +5,7 @@ import { useCart } from '../../contexts/CartContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import toast from 'react-hot-toast';
-import logoImage from '../../assets/logosc.jpg';
+import logoImage from '../../assets/scbrandname.jpg';
 import './Header.scss';
 
 const Header = ({ onMenuClick, onCartClick, onLoginClick, onLogoClick }) => {
@@ -43,7 +43,6 @@ const Header = ({ onMenuClick, onCartClick, onLoginClick, onLogoClick }) => {
           </button>
           <div className="logo-container" onClick={onLogoClick}>
             <img src={logoImage} alt="SpiceCraft Logo" className="logo-image" />
-            <h1 className="logo">SpiceCraft</h1>
           </div>
         </div>
 

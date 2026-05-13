@@ -2,12 +2,12 @@
 @import '../../styles/mixins.scss';
 
 .header {
-  background: white;
+  background: #2d5a5a;
   box-shadow: $shadow-md;
   position: sticky;
   top: 0;
   z-index: 50;
-  border-bottom: 1px solid $gray-100;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
   .container {
     @include flex-between;
@@ -35,7 +35,7 @@
       @include touch-target;
       border: none;
       background: none;
-      color: $gray-600;
+      color: rgba(255, 255, 255, 0.8);
       border-radius: $border-radius-lg;
       cursor: pointer;
       transition: all $transition-fast;
@@ -46,8 +46,8 @@
       }
 
       &:hover {
-        color: $gray-900;
-        background-color: $gray-100;
+        color: white;
+        background-color: rgba(255, 255, 255, 0.1);
       }
 
       svg {
@@ -77,14 +77,13 @@
       }
 
       .logo-image {
-        width: 2rem;
-        height: 2rem;
+        height: 3rem;
+        width: auto;
         border-radius: $border-radius;
-        object-fit: cover;
+        object-fit: contain;
         
         @include mobile {
-          width: 1.75rem;
-          height: 1.75rem;
+          height: 2.25rem;
         }
       }
 
@@ -133,7 +132,7 @@
       @include touch-target;
       border: none;
       background: none;
-      color: $gray-600;
+      color: rgba(255, 255, 255, 0.8);
       cursor: pointer;
       transition: all $transition-fast;
       border-radius: $border-radius-lg;
@@ -144,8 +143,8 @@
       }
 
       &:hover {
-        color: $primary-color;
-        background-color: $primary-light;
+        color: white;
+        background-color: rgba(255, 255, 255, 0.1);
       }
 
       svg {
@@ -191,7 +190,7 @@
         @include touch-target;
         border: none;
         background: none;
-        color: $gray-600;
+        color: rgba(255, 255, 255, 0.8);
         cursor: pointer;
         transition: all $transition-fast;
         border-radius: $border-radius-lg;
@@ -205,8 +204,8 @@
         }
 
         &:hover {
-          color: $primary-color;
-          background-color: $primary-light;
+          color: white;
+          background-color: rgba(255, 255, 255, 0.1);
         }
 
         &:focus {
@@ -325,8 +324,19 @@
     }
 
     .login-btn {
-      @include button-primary;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       padding: $spacing-2 $spacing-4;
+      border-radius: $border-radius-lg;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all $transition-fast;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
       
       @include mobile {
         padding: $spacing-2 $spacing-3;

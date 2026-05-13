@@ -28,6 +28,20 @@
     }
 
     .footer-section {
+      .footer-logo {
+        margin-bottom: $spacing-4;
+        
+        .footer-logo-image {
+          height: 3rem;
+          width: auto;
+          object-fit: contain;
+          
+          @include mobile {
+            height: 2.5rem;
+          }
+        }
+      }
+
       .footer-title {
         font-size: 1.75rem;
         font-weight: 800;

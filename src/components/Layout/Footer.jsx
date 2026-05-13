@@ -2,6 +2,7 @@ import { MapPin, Phone, Mail, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import { restaurantConfig } from '../../config/restaurant';
 import PrivacyModal from '../UI/PrivacyModal';
+import logoImage from '../../assets/scbrandname.jpg';
 import './Footer.scss';
 
 const Footer = () => {
@@ -13,7 +14,9 @@ const Footer = () => {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-section">
-            <h3 className="footer-title">{restaurantConfig.name}</h3>
+            <div className="footer-logo">
+              <img src={logoImage} alt="SpiceCraft Logo" className="footer-logo-image" />
+            </div>
             <p className="footer-description">
               {restaurantConfig.description}
             </p>
