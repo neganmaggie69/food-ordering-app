@@ -17,7 +17,63 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
     notes: ''
   });
 
+  const cleanObjectForFirestore = (obj) => {
+    const cleaned = {};
+    Object.keys(obj).forEach(key => {
+      if (obj[key] !== undefined && obj[key] !== null) {
+        if (typeof obj[key] === 'object' && !Array.isArray(obj[key]) && !(obj[key] instanceof Date)) {
+          cleaned[key] = cleanObjectForFirestore(obj[key]);
+        } else {
+          cleaned[key] = obj[key];
+        }
+      }
+    });
+    return cleaned;
+  };
+
+  const validateOrderData = (orderData) => {
+    const required = ['userId', 'items', 'totalAmount', 'address', 'paymentMethod'];
+    const missing = required.filter(field => !orderData[field]);
+    
+    if (missing.length > 0) {
+      throw new Error(`Missing required fields: ${missing.join(', ')}`);
+    }
+    
+    if (!Array.isArray(orderData.items) || orderData.items.length === 0) {
+      throw new Error('Order must contain at least one item');
+    }
+    
+    if (orderData.totalAmount <= 0) {
+      throw new Error('Order total must be greater than 0');
+    }
+    
+    return true;
+  };
+
+  const saveOrderWithRetry = async (orderData, maxRetries = 3) => {
+    // Clean and validate order data first
+    const cleanedData = cleanObjectForFirestore(orderData);
+    validateOrderData(cleanedData);
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`Attempt ${attempt} to save order:`, cleanedData);
+        const docRef = await addDoc(collection(db, 'orders'), cleanedData);
+        console.log('Order saved successfully with ID:', docRef.id);
+        return docRef;
+      } catch (error) {
+        console.error(`Attempt ${attempt} failed:`, error);
+        if (attempt === maxRetries) {
+          throw error;
+        }
+        // Wait before retry (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
+    }
+  };
+
   const handleInputChange = (field, value) => {
+    console.log('Changing field:', field, 'to value:', value);
     setOrderData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -25,50 +81,85 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
     return new Promise((resolve) => {
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
+      script.onload = () => {
+        console.log('Razorpay SDK loaded successfully');
+        resolve(true);
+      };
+      script.onerror = () => {
+        console.error('Failed to load Razorpay SDK');
+        resolve(false);
+      };
       document.body.appendChild(script);
     });
   };
 
   const handleRazorpayPayment = async (orderDetails) => {
-    const res = await initializeRazorpay();
-    if (!res) {
-      toast.error('Razorpay SDK failed to load');
-      return false;
-    }
+    try {
+      const res = await initializeRazorpay();
+      if (!res) {
+        toast.error('Razorpay SDK failed to load. Please check your internet connection.');
+        return false;
+      }
 
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_9WaeLLJnOFJCBz', // Replace with your key
-      amount: getTotalPrice() * 100, // Amount in paise
-      currency: 'INR',
-      name: 'SpiceCraft',
-      description: 'Food Order Payment',
-      image: '/logosc.jpg', // Your logo
-      method: {
-        upi: true,
-        card: true,
-        netbanking: true,
-        wallet: true
-      },
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_9WaeLLJnOFJCBz';
+      console.log('Using Razorpay key:', razorpayKey);
+
+      const options = {
+        key: razorpayKey,
+        amount: getTotalPrice() * 100, // Amount in paise
+        currency: 'INR',
+        name: 'SpiceCraft',
+        description: 'Food Order Payment',
+        image: '/logosc.jpg', // Your logo
+        method: {
+          upi: true,
+          card: true,
+          netbanking: true,
+          wallet: true
+        },
       handler: async function (response) {
         try {
-          // Save order with payment details
+          // Save order with payment details - only include defined fields
           const finalOrder = {
             ...orderDetails,
             paymentId: response.razorpay_payment_id,
-            paymentStatus: 'paid',
-            razorpaySignature: response.razorpay_signature
+            paymentStatus: 'paid'
           };
           
-          await addDoc(collection(db, 'orders'), finalOrder);
+          // Only add razorpaySignature if it exists
+          if (response.razorpay_signature) {
+            finalOrder.razorpaySignature = response.razorpay_signature;
+          }
+          
+          console.log('Saving order:', finalOrder);
+          const docRef = await saveOrderWithRetry(finalOrder);
+          console.log('Order saved with ID:', docRef.id);
+          
           clearCart();
           toast.success('Payment successful! Order placed.');
           onClose();
           if (onOrderSuccess) onOrderSuccess();
         } catch (error) {
-          console.error('Error saving order:', error);
-          toast.error('Payment successful but order save failed. Please contact support.');
+          console.error('Error saving order after payment:', error);
+          
+          // Store failed order locally for recovery
+          const failedOrder = {
+            ...finalOrder,
+            failedAt: new Date().toISOString(),
+            error: error.message
+          };
+          localStorage.setItem('failedOrder_' + response.razorpay_payment_id, JSON.stringify(failedOrder));
+          
+          // More specific error message
+          if (error.code === 'permission-denied') {
+            toast.error('Permission denied. Please login again and try.');
+          } else if (error.code === 'unavailable') {
+            toast.error('Service temporarily unavailable. Your payment was successful. Please contact support with payment ID: ' + response.razorpay_payment_id);
+          } else if (error.message.includes('Missing required fields')) {
+            toast.error('Order data incomplete. Payment ID: ' + response.razorpay_payment_id + '. Please contact support.');
+          } else {
+            toast.error('Payment successful but order save failed. Payment ID: ' + response.razorpay_payment_id + '. Please contact support.');
+          }
         }
       },
       prefill: {
@@ -88,6 +179,11 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
     
     paymentObject.open();
     return true;
+    } catch (error) {
+      console.error('Error in Razorpay payment:', error);
+      toast.error('Error initializing payment. Please try again.');
+      return false;
+    }
   };
 
   const handlePlaceOrder = async () => {
@@ -121,7 +217,7 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
         }
       } else {
         // For COD
-        await addDoc(collection(db, 'orders'), baseOrder);
+        await saveOrderWithRetry(baseOrder);
         clearCart();
         toast.success('Order placed successfully!');
         onClose();
