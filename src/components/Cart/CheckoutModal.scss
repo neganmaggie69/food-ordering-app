@@ -90,22 +90,43 @@
         padding: $spacing-3;
         border-radius: $border-radius-lg;
 
-        .summary-item {
-          @include flex-between;
-          font-size: 0.875rem;
+        .summary-item-group {
           margin-bottom: $spacing-2;
-          color: $primary-color;
 
           &:last-child {
             margin-bottom: 0;
           }
+        }
+
+        .summary-item {
+          @include flex-between;
+          font-size: 0.875rem;
+          color: $primary-color;
 
           &.total {
             border-top: 2px solid $primary-color;
             padding-top: $spacing-2;
+            margin-top: $spacing-2;
             font-weight: 700;
             font-size: 0.95rem;
             color: $primary-hover;
+          }
+        }
+
+        .summary-addons {
+          margin-left: $spacing-3;
+          margin-top: $spacing-1;
+
+          .summary-addon {
+            @include flex-between;
+            font-size: 0.75rem;
+            color: $accent-color;
+            margin-bottom: 2px;
+            font-style: italic;
+
+            &:last-child {
+              margin-bottom: 0;
+            }
           }
         }
       }

@@ -207,6 +207,46 @@
               font-size: 0.8rem;
             }
           }
+
+          .item-addons {
+            margin-top: $spacing-2;
+            padding-top: $spacing-2;
+            border-top: 1px solid $gray-200;
+
+            .addons-label {
+              font-size: 0.75rem;
+              font-weight: 600;
+              color: $primary-color;
+              margin: 0 0 $spacing-1 0;
+            }
+
+            .addon-detail {
+              @include flex-between;
+              align-items: center;
+              font-size: 0.75rem;
+              margin-bottom: 2px;
+              color: $gray-600;
+
+              &:last-child {
+                margin-bottom: 0;
+              }
+
+              .addon-name {
+                flex: 1;
+                font-weight: 500;
+              }
+
+              .addon-quantity {
+                margin: 0 $spacing-1;
+                color: $gray-500;
+              }
+
+              .addon-price {
+                font-weight: 600;
+                color: $accent-color;
+              }
+            }
+          }
         }
 
         .quantity-controls {

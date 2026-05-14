@@ -28,30 +28,52 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (item) => {
     setCartItems(prev => {
-      const existingItem = prev.find(cartItem => cartItem.id === item.id);
+      // Create a unique identifier for items with add-ons
+      const itemKey = item.selectedAddOns && item.selectedAddOns.length > 0 
+        ? `${item.id}_${item.selectedAddOns.map(addon => `${addon.id}_${addon.quantity}`).join('_')}`
+        : item.id;
+      
+      const existingItem = prev.find(cartItem => {
+        if (item.selectedAddOns && item.selectedAddOns.length > 0) {
+          // For items with add-ons, match by unique key
+          return cartItem.uniqueKey === itemKey;
+        } else {
+          // For regular items, match by id and no add-ons
+          return cartItem.id === item.id && (!cartItem.selectedAddOns || cartItem.selectedAddOns.length === 0);
+        }
+      });
+
       if (existingItem) {
         return prev.map(cartItem =>
-          cartItem.id === item.id
+          (item.selectedAddOns && item.selectedAddOns.length > 0 ? cartItem.uniqueKey === itemKey : cartItem.id === item.id)
             ? { ...cartItem, quantity: cartItem.quantity + 1 }
             : cartItem
         );
       }
-      return [...prev, { ...item, quantity: 1 }];
+      
+      // Add new item with unique key for add-ons
+      const newItem = { 
+        ...item, 
+        quantity: 1,
+        uniqueKey: itemKey
+      };
+      
+      return [...prev, newItem];
     });
   };
 
-  const removeFromCart = (itemId) => {
-    setCartItems(prev => prev.filter(item => item.id !== itemId));
+  const removeFromCart = (itemKey) => {
+    setCartItems(prev => prev.filter(item => (item.uniqueKey || item.id) !== itemKey));
   };
 
-  const updateQuantity = (itemId, quantity) => {
+  const updateQuantity = (itemKey, quantity) => {
     if (quantity <= 0) {
-      removeFromCart(itemId);
+      removeFromCart(itemKey);
       return;
     }
     setCartItems(prev =>
       prev.map(item =>
-        item.id === itemId ? { ...item, quantity } : item
+        (item.uniqueKey || item.id) === itemKey ? { ...item, quantity } : item
       )
     );
   };
@@ -61,7 +83,19 @@ export const CartProvider = ({ children }) => {
   };
 
   const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cartItems.reduce((total, item) => {
+      let itemPrice = item.price;
+      
+      // Add add-ons price if any
+      if (item.selectedAddOns && item.selectedAddOns.length > 0) {
+        const addOnsPrice = item.selectedAddOns.reduce((addOnTotal, addOn) => {
+          return addOnTotal + (addOn.price * addOn.quantity);
+        }, 0);
+        itemPrice += addOnsPrice;
+      }
+      
+      return total + (itemPrice * item.quantity);
+    }, 0);
   };
 
   const getTotalItems = () => {

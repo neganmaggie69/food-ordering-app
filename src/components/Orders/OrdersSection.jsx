@@ -211,15 +211,33 @@ const OrdersSection = () => {
 
               <div className="order-content">
                 <div className="order-items">
-                  {order.items?.map((item, index) => (
-                    <div key={index} className="order-item">
-                      <span className="item-name">{item.name}</span>
-                      <div className="item-details">
-                        <span className="quantity">x{item.quantity}</span>
-                        <span className="price">₹{item.price * item.quantity}</span>
+                  {order.items?.map((item, index) => {
+                    const basePrice = item.price;
+                    const addOnsPrice = item.selectedAddOns ? 
+                      item.selectedAddOns.reduce((total, addOn) => total + (addOn.price * addOn.quantity), 0) : 0;
+                    const totalItemPrice = (basePrice + addOnsPrice) * item.quantity;
+
+                    return (
+                      <div key={index} className="order-item">
+                        <div className="item-main">
+                          <span className="item-name">{item.name} x{item.quantity} = ₹{totalItemPrice}</span>
+                        </div>
+                        
+                        {/* Display add-ons if any */}
+                        {item.selectedAddOns && item.selectedAddOns.length > 0 && (
+                          <div className="item-addons">
+                            {item.selectedAddOns.map(addOn => (
+                              <div key={addOn.id} className="addon-detail">
+                                <span className="addon-name">+ {addOn.name}</span>
+                                <span className="addon-quantity">x{addOn.quantity}</span>
+                                <span className="addon-price">₹{addOn.price * addOn.quantity}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="order-footer">

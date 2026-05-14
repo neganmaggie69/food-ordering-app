@@ -212,6 +212,21 @@
       }
     }
 
+    .addons-indicator {
+      margin: $spacing-2 0;
+      
+      span {
+        display: inline-block;
+        background: linear-gradient(135deg, $accent-light 0%, lighten($accent-light, 2%) 100%);
+        color: $accent-color;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 2px $spacing-2;
+        border-radius: $border-radius-full;
+        border: 1px solid rgba($accent-color, 0.3);
+      }
+    }
+
     .menu-card-footer {
       @include flex-between;
       align-items: center;

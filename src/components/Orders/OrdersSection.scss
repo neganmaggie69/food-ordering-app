@@ -344,13 +344,18 @@
 }
 
 .order-item {
-  @include flex-between;
-  padding: $spacing-1 0;
+  padding: $spacing-2 0;
   border-bottom: 1px solid $gray-200;
   
   &:last-child {
     border-bottom: none;
     padding-bottom: 0;
+  }
+  
+  .item-main {
+    @include flex-between;
+    align-items: center;
+    margin-bottom: $spacing-1;
   }
   
   .item-name {
@@ -388,6 +393,54 @@
       
       @include mobile {
         font-size: 0.85rem;
+      }
+    }
+  }
+
+  .item-addons {
+    margin-left: $spacing-4;
+    margin-top: $spacing-1;
+
+    @include mobile {
+      margin-left: $spacing-2;
+    }
+
+    .addon-detail {
+      @include flex-between;
+      align-items: center;
+      padding: 2px 0;
+      font-size: 0.8rem;
+      color: $gray-600;
+
+      @include mobile {
+        font-size: 0.75rem;
+      }
+
+      .addon-name {
+        flex: 1;
+        font-style: italic;
+        color: $accent-color;
+      }
+
+      .addon-quantity {
+        margin: 0 $spacing-2;
+        color: $gray-500;
+        font-size: 0.75rem;
+
+        @include mobile {
+          margin: 0 $spacing-1;
+          font-size: 0.7rem;
+        }
+      }
+
+      .addon-price {
+        font-weight: 500;
+        color: $accent-color;
+        font-size: 0.8rem;
+
+        @include mobile {
+          font-size: 0.75rem;
+        }
       }
     }
   }

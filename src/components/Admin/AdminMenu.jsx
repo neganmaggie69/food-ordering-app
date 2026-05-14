@@ -30,8 +30,10 @@ const AdminMenu = () => {
     isVeg: true,
     isActive: true,
     image: '',
-    imagePath: ''
+    imagePath: '',
+    addOns: []
   });
+  const [newAddOn, setNewAddOn] = useState({ name: '', price: '' });
 
   useEffect(() => {
     const q = query(collection(db, 'menuItems'));
@@ -66,11 +68,48 @@ const AdminMenu = () => {
       isVeg: true,
       isActive: true,
       image: '',
-      imagePath: ''
+      imagePath: '',
+      addOns: []
     });
     setSelectedImage(null);
+    setNewAddOn({ name: '', price: '' });
     setShowAddForm(false);
     setEditingItem(null);
+  };
+
+  const handleAddAddOn = () => {
+    if (!newAddOn.name.trim() || !newAddOn.price) {
+      toast.error('Please enter add-on name and price');
+      return;
+    }
+
+    const addOn = {
+      id: Date.now().toString(),
+      name: newAddOn.name.trim(),
+      price: parseFloat(newAddOn.price)
+    };
+
+    console.log('Adding add-on:', addOn); // Debug log
+
+    setFormData(prev => {
+      const updatedFormData = {
+        ...prev,
+        addOns: [...prev.addOns, addOn]
+      };
+      console.log('Updated form data addOns:', updatedFormData.addOns); // Debug log
+      return updatedFormData;
+    });
+
+    setNewAddOn({ name: '', price: '' });
+    toast.success('Add-on added successfully');
+  };
+
+  const handleRemoveAddOn = (addOnId) => {
+    setFormData(prev => ({
+      ...prev,
+      addOns: prev.addOns.filter(addOn => addOn.id !== addOnId)
+    }));
+    toast.success('Add-on removed');
   };
 
   const handleSubmit = async (e) => {
@@ -117,9 +156,12 @@ const AdminMenu = () => {
         description: formData.description,
         isVeg: formData.isVeg,
         isActive: formData.isActive,
+        addOns: formData.addOns || [],
         ...imageData,
         updatedAt: new Date()
       };
+
+      console.log('Saving item data:', itemData); // Debug log
 
       if (editingItem) {
         await updateDoc(doc(db, 'menuItems', editingItem.id), itemData);
@@ -159,7 +201,8 @@ const AdminMenu = () => {
       isVeg: item.isVeg,
       isActive: item.isActive,
       image: item.image || '',
-      imagePath: item.imagePath || ''
+      imagePath: item.imagePath || '',
+      addOns: item.addOns || []
     });
     setSelectedImage(null);
     setEditingItem(item);
@@ -348,6 +391,60 @@ const AdminMenu = () => {
                   rows="3"
                   className="form-textarea"
                 />
+              </div>
+            </div>
+
+            {/* Add-ons Management Section */}
+            <div className="form-row">
+              <div className="form-group full-width">
+                <label>Add-ons (Optional)</label>
+                <div className="addons-section">
+                  <div className="addon-input-row">
+                    <input
+                      type="text"
+                      value={newAddOn.name}
+                      onChange={(e) => setNewAddOn(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Add-on name (e.g., Extra Cheese)"
+                      className="addon-name-input"
+                    />
+                    <input
+                      type="number"
+                      value={newAddOn.price}
+                      onChange={(e) => setNewAddOn(prev => ({ ...prev, price: e.target.value }))}
+                      placeholder="Price"
+                      className="addon-price-input"
+                      min="0"
+                      step="0.01"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddAddOn}
+                      className="add-addon-btn"
+                    >
+                      <Plus className="icon" />
+                      Add
+                    </button>
+                  </div>
+                  
+                  {formData.addOns.length > 0 && (
+                    <div className="addons-list">
+                      <h4>Current Add-ons:</h4>
+                      {formData.addOns.map(addOn => (
+                        <div key={addOn.id} className="addon-item">
+                          <span className="addon-name">{addOn.name}</span>
+                          <span className="addon-price">₹{addOn.price}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAddOn(addOn.id)}
+                            className="remove-addon-btn"
+                          >
+                            <X className="icon" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

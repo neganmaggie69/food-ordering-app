@@ -283,12 +283,34 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
           <div className="section">
             <h3 className="section-title">Order Summary</h3>
             <div className="order-summary">
-              {cartItems.map(item => (
-                <div key={item.id} className="summary-item">
-                  <span>{item.name} x {item.quantity}</span>
-                  <span>₹{item.price * item.quantity}</span>
-                </div>
-              ))}
+              {cartItems.map(item => {
+                const itemKey = item.uniqueKey || item.id;
+                const basePrice = item.price;
+                const addOnsPrice = item.selectedAddOns ? 
+                  item.selectedAddOns.reduce((total, addOn) => total + (addOn.price * addOn.quantity), 0) : 0;
+                const totalItemPrice = (basePrice + addOnsPrice) * item.quantity;
+
+                return (
+                  <div key={itemKey} className="summary-item-group">
+                    <div className="summary-item">
+                      <span>{item.name} x {item.quantity}</span>
+                      <span>₹{totalItemPrice}</span>
+                    </div>
+                    
+                    {/* Display add-ons if any */}
+                    {item.selectedAddOns && item.selectedAddOns.length > 0 && (
+                      <div className="summary-addons">
+                        {item.selectedAddOns.map(addOn => (
+                          <div key={addOn.id} className="summary-addon">
+                            <span>+ {addOn.name} x{addOn.quantity}</span>
+                            <span>₹{addOn.price * addOn.quantity * item.quantity}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
               <div className="summary-item total">
                 <span>Total</span>
                 <span>₹{getTotalPrice()}</span>

@@ -203,6 +203,126 @@
         }
       }
 
+      // Add-ons section styles
+      .addons-section {
+        border: 2px solid $gray-200;
+        border-radius: $border-radius-lg;
+        padding: $spacing-4;
+        background: $gray-50;
+
+        .addon-input-row {
+          display: grid;
+          grid-template-columns: 2fr 1fr auto;
+          gap: $spacing-2;
+          margin-bottom: $spacing-3;
+          align-items: end;
+
+          @include mobile {
+            grid-template-columns: 1fr;
+            gap: $spacing-2;
+          }
+
+          .addon-name-input,
+          .addon-price-input {
+            padding: $spacing-2;
+            border: 2px solid $gray-200;
+            border-radius: $border-radius;
+            font-size: 0.875rem;
+
+            &:focus {
+              outline: none;
+              border-color: $primary-color;
+              box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+            }
+          }
+
+          .add-addon-btn {
+            @include flex-center;
+            gap: $spacing-1;
+            padding: $spacing-2 $spacing-3;
+            background: $primary-color;
+            color: white;
+            border: none;
+            border-radius: $border-radius;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all $transition-fast;
+            white-space: nowrap;
+
+            @include mobile {
+              justify-self: stretch;
+            }
+
+            &:hover {
+              background: $primary-hover;
+            }
+
+            .icon {
+              width: 1rem;
+              height: 1rem;
+            }
+          }
+        }
+
+        .addons-list {
+          h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: $primary-color;
+            margin: 0 0 $spacing-2 0;
+          }
+
+          .addon-item {
+            @include flex-between;
+            align-items: center;
+            padding: $spacing-2 $spacing-3;
+            background: white;
+            border: 1px solid $gray-200;
+            border-radius: $border-radius;
+            margin-bottom: $spacing-2;
+
+            &:last-child {
+              margin-bottom: 0;
+            }
+
+            .addon-name {
+              font-size: 0.875rem;
+              color: $gray-700;
+              font-weight: 500;
+            }
+
+            .addon-price {
+              font-size: 0.875rem;
+              font-weight: 600;
+              color: $primary-color;
+            }
+
+            .remove-addon-btn {
+              @include flex-center;
+              width: 1.5rem;
+              height: 1.5rem;
+              background: $error-light;
+              color: $error-color;
+              border: none;
+              border-radius: $border-radius;
+              cursor: pointer;
+              transition: all $transition-fast;
+
+              &:hover {
+                background: $error-color;
+                color: white;
+              }
+
+              .icon {
+                width: 0.875rem;
+                height: 0.875rem;
+              }
+            }
+          }
+        }
+      }
+
       .form-options {
         @include flex-start;
         gap: $spacing-6;

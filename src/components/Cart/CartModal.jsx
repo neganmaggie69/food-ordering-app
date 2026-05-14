@@ -44,40 +44,62 @@ const CartModal = ({ isOpen, onClose, onLoginRequired, onOrderSuccess }) => {
               </div>
             ) : (
               <div className="cart-items">
-                {cartItems.map(item => (
-                  <div key={item.id} className="cart-item">
-                    <div className="item-info">
-                      <h3 className="item-name">{item.name}</h3>
-                      <p className="item-price">₹{item.price} each</p>
+                {cartItems.map(item => {
+                  const itemKey = item.uniqueKey || item.id;
+                  const basePrice = item.price;
+                  const addOnsPrice = item.selectedAddOns ? 
+                    item.selectedAddOns.reduce((total, addOn) => total + (addOn.price * addOn.quantity), 0) : 0;
+                  const totalItemPrice = (basePrice + addOnsPrice) * item.quantity;
+
+                  return (
+                    <div key={itemKey} className="cart-item">
+                      <div className="item-info">
+                        <h3 className="item-name">{item.name}</h3>
+                        <p className="item-price">₹{basePrice} each</p>
+                        
+                        {/* Display add-ons if any */}
+                        {item.selectedAddOns && item.selectedAddOns.length > 0 && (
+                          <div className="item-addons">
+                            <p className="addons-label">Add-ons:</p>
+                            {item.selectedAddOns.map(addOn => (
+                              <div key={addOn.id} className="addon-detail">
+                                <span className="addon-name">{addOn.name}</span>
+                                <span className="addon-quantity">x{addOn.quantity}</span>
+                                <span className="addon-price">+₹{addOn.price * addOn.quantity}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="quantity-controls">
+                        <button
+                          onClick={() => updateQuantity(itemKey, item.quantity - 1)}
+                          className="quantity-btn"
+                        >
+                          <Minus />
+                        </button>
+                        <span className="quantity">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(itemKey, item.quantity + 1)}
+                          className="quantity-btn primary"
+                        >
+                          <Plus />
+                        </button>
+                      </div>
+                      
+                      <div className="item-total">
+                        <p className="total-price">₹{totalItemPrice}</p>
+                        <button
+                          onClick={() => removeFromCart(itemKey)}
+                          className="remove-btn"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
-                    
-                    <div className="quantity-controls">
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="quantity-btn"
-                      >
-                        <Minus />
-                      </button>
-                      <span className="quantity">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="quantity-btn primary"
-                      >
-                        <Plus />
-                      </button>
-                    </div>
-                    
-                    <div className="item-total">
-                      <p className="total-price">₹{item.price * item.quantity}</p>
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="remove-btn"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
