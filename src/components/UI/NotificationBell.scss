@@ -66,22 +66,27 @@
     @include mobile {
       position: absolute;
       top: calc(100% + 0.25rem);
-      right: -0.5rem;
-      width: 240px;
+      right: -0.25rem;
+      left: auto;
+      width: calc(100vw - 1rem);
+      max-width: 280px;
       max-height: 200px;
-      border-radius: $border-radius;
-      box-shadow: $shadow-lg;
+      border-radius: $border-radius-lg;
+      box-shadow: $shadow-xl;
+      border: 2px solid $primary-color;
     }
     
     @media (max-width: 480px) {
-      right: -1rem;
-      width: 220px;
+      right: -7rem;
+      width: calc(100vw - 0.5rem);
+      max-width: 260px;
       max-height: 180px;
     }
     
     @media (max-width: 360px) {
-      right: -1.5rem;
-      width: 200px;
+      right: -7rem;
+      width: calc(100vw - 0.5rem);
+      max-width: 240px;
       max-height: 160px;
     }
     
@@ -89,21 +94,23 @@
       @include flex-between;
       align-items: center;
       padding: $spacing-4;
-      border-bottom: 1px solid $gray-200;
-      background: $gray-50;
+      border-bottom: 2px solid $primary-color;
+      background: linear-gradient(135deg, $primary-light 0%, lighten($primary-light, 3%) 100%);
       
       @include mobile {
         padding: $spacing-1 $spacing-2;
+        border-bottom: 1px solid $primary-color;
       }
       
       h3 {
         font-size: 1rem;
         font-weight: 600;
-        color: $gray-900;
+        color: $primary-color;
         margin: 0;
         
         @include mobile {
           font-size: 0.7rem;
+          font-weight: 700;
         }
       }
       
@@ -134,7 +141,7 @@
           .icon {
             width: 1rem;
             height: 1rem;
-            color: $gray-600;
+            color: $primary-color;
             
             @include mobile {
               width: 0.6rem;
@@ -143,10 +150,10 @@
           }
           
           &:hover {
-            background: $gray-200;
+            background: rgba($primary-color, 0.1);
             
             .icon {
-              color: $gray-800;
+              color: $primary-hover;
             }
           }
         }
@@ -230,11 +237,11 @@
         }
         
         &.unread {
-          background: $primary-light;
-          border-left: 3px solid $primary-color;
+          background: linear-gradient(135deg, $primary-light 0%, lighten($primary-light, 2%) 100%);
+          border-left: 4px solid $accent-color;
           
           &:hover {
-            background: lighten($primary-light, 2%);
+            background: linear-gradient(135deg, lighten($primary-light, 1%) 0%, lighten($primary-light, 3%) 100%);
           }
         }
         
@@ -278,7 +285,7 @@
             .notification-title {
               font-size: 0.875rem;
               font-weight: 600;
-              color: $gray-900;
+              color: $primary-color;
               flex: 1;
               min-width: 0;
               overflow: hidden;
@@ -287,17 +294,20 @@
               
               @include mobile {
                 font-size: 0.65rem;
-                font-weight: 500;
+                font-weight: 600;
+                color: $primary-hover;
               }
             }
             
             .notification-time {
               font-size: 0.75rem;
-              color: $gray-500;
+              color: $accent-color;
               flex-shrink: 0;
+              font-weight: 500;
               
               @include mobile {
                 font-size: 0.55rem;
+                font-weight: 600;
               }
             }
           }
@@ -326,13 +336,15 @@
             transform: translateY(-50%);
             width: 0.5rem;
             height: 0.5rem;
-            background: $primary-color;
+            background: $accent-color;
             border-radius: $border-radius-full;
+            box-shadow: 0 0 0 2px white, 0 0 0 3px $accent-color;
             
             @include mobile {
               right: $spacing-1;
               width: 0.25rem;
               height: 0.25rem;
+              box-shadow: 0 0 0 1px white, 0 0 0 2px $accent-color;
             }
           }
         }
@@ -363,6 +375,7 @@
             @include mobile {
               width: 0.6rem;
               height: 0.6rem;
+              color: $accent-color;
             }
           }
           
