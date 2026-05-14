@@ -72,20 +72,20 @@
     }
 
     .menu-card-header {
-      margin-bottom: $spacing-3; // More space since no description
+      margin-bottom: $spacing-2; // Reduced spacing
 
       @include mobile {
-        margin-bottom: $spacing-2;
+        margin-bottom: $spacing-1;
       }
 
       .title-row {
         @include flex-start;
         align-items: center;
         gap: $spacing-1;
-        margin-bottom: $spacing-2;
+        margin-bottom: $spacing-1;
 
         @include mobile {
-          margin-bottom: $spacing-1;
+          margin-bottom: 2px;
           gap: 4px;
         }
 
@@ -160,10 +160,10 @@
     }
 
     .menu-card-description-container {
-      margin: 0 0 $spacing-3 0;
+      margin: 0 0 $spacing-2 0;
       
       @include mobile {
-        margin-bottom: $spacing-2;
+        margin-bottom: $spacing-1;
       }
 
       .menu-card-description {
@@ -219,7 +219,7 @@
     }
 
     .addons-indicator {
-      margin: $spacing-2 0;
+      margin: $spacing-1 0;
       
       span {
         display: inline-block;

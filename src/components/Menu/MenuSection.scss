@@ -95,8 +95,8 @@
     top: 4rem; // Stick below the header (header height is 4rem)
     background: #d4e0dd;
     z-index: 40; // Lower than header (50) but higher than content
-    padding: $spacing-8 0;
-    margin-bottom: $spacing-6;
+    padding: 0.9rem 0;
+    margin-bottom: 0.5rem;
     border-bottom: 1px solid rgba(45, 90, 90, 0.1);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); // Add subtle shadow when sticky
     width: 100vw;
@@ -104,8 +104,8 @@
     overflow: visible;
     
     @include mobile {
-      padding: $spacing-6 0;
-      margin-bottom: $spacing-4;
+      padding: $spacing-3 0;
+      margin-bottom: $spacing-3;
       top: 3.25rem; // Mobile header height is 3.25rem
     }
   }
@@ -113,7 +113,7 @@
   .veg-filters {
     display: flex;
     gap: $spacing-2;
-    margin-bottom: $spacing-4;
+    margin-bottom: $spacing-3;
     padding: 0 2.8rem;
     max-width: 1400px;
     margin-left: auto;
@@ -121,7 +121,7 @@
     
     @include mobile {
       gap: $spacing-1;
-      margin-bottom: $spacing-3;
+      margin-bottom: $spacing-2;
       padding: 0 1.5rem;
     }
 
