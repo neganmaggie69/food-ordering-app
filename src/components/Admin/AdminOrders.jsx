@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { Clock, CheckCircle, XCircle, Truck, Phone, MapPin, CreditCard, ChevronDown, Filter } from 'lucide-react';
+import { useNotifications } from '../../contexts/NotificationContext';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import toast from 'react-hot-toast';
 import './AdminOrders.scss';
@@ -11,6 +12,7 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const { orderStatusChanged, orderDelivered, paymentReceived } = useNotifications();
 
   useEffect(() => {
     const q = query(
@@ -43,14 +45,58 @@ const AdminOrders = () => {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
+      const order = orders.find(o => o.id === orderId);
+      
       await updateDoc(doc(db, 'orders', orderId), {
         status: newStatus,
         updatedAt: new Date()
       });
+      
+      // Create notifications for status changes
+      try {
+        if (order && order.userId) {
+          await orderStatusChanged(order, newStatus, order.userId);
+          
+          // Special notification for delivery
+          if (newStatus === 'delivered') {
+            await orderDelivered(order, order.userId);
+          }
+        }
+      } catch (notificationError) {
+        console.error('Error creating status change notification:', notificationError);
+        // Don't fail the status update if notifications fail
+      }
+      
       toast.success('Order status updated');
     } catch (error) {
       console.error('Error updating order status:', error);
       toast.error('Error updating order status');
+    }
+  };
+
+  const updatePaymentStatus = async (orderId, newPaymentStatus) => {
+    try {
+      const order = orders.find(o => o.id === orderId);
+      
+      await updateDoc(doc(db, 'orders', orderId), {
+        paymentStatus: newPaymentStatus,
+        updatedAt: new Date()
+      });
+      
+      // Create notification for payment received
+      try {
+        if (newPaymentStatus === 'paid' && order) {
+          await paymentReceived(orderId, order.totalAmount);
+        }
+      } catch (notificationError) {
+        console.error('Error creating payment notification:', notificationError);
+        // Don't fail the payment update if notifications fail
+      }
+      
+      toast.success('Payment status updated');
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      toast.error('Error updating payment status');
     }
   };
 

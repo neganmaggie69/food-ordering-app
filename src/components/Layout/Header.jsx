@@ -6,6 +6,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import toast from 'react-hot-toast';
 import logoImage from '../../assets/scbrandname.jpg';
+import NotificationBell from '../UI/NotificationBell';
 import './Header.scss';
 
 const Header = ({ onMenuClick, onCartClick, onLoginClick, onLogoClick }) => {
@@ -47,6 +48,9 @@ const Header = ({ onMenuClick, onCartClick, onLoginClick, onLogoClick }) => {
         </div>
 
         <div className="right-section">
+          {/* Notification Bell - only show for logged in users */}
+          {user && <NotificationBell />}
+
           <button onClick={onCartClick} className="cart-btn">
             <ShoppingCart />
             {getTotalItems() > 0 && (

@@ -126,6 +126,37 @@
       gap: $spacing-1;
     }
 
+    .notifications-btn {
+      @include flex-center;
+      @include touch-target;
+      border: none;
+      background: none;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      transition: all $transition-fast;
+      border-radius: $border-radius-lg;
+
+      @include mobile {
+        min-width: 40px;
+        min-height: 40px;
+      }
+
+      &:hover {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        
+        @include mobile {
+          width: 1.125rem;
+          height: 1.125rem;
+        }
+      }
+    }
+
     .cart-btn {
       position: relative;
       @include flex-center;

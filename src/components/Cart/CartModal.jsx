@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotifications } from '../../contexts/NotificationContext';
 import CheckoutModal from './CheckoutModal';
 import './CartModal.scss';
 

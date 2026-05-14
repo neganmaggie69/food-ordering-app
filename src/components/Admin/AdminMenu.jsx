@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { Plus, Edit, Trash2, Save, X, Check, DollarSign, Search } from 'lucide-react';
+import { useNotifications } from '../../contexts/NotificationContext';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import ImageUpload from '../UI/ImageUpload';
 import { uploadMenuItemImage, deleteMenuItemImage } from '../../utils/imageUpload';
@@ -19,6 +20,8 @@ const AdminMenu = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageUploading, setImageUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(null);
+  const { menuItemAdded, menuItemOutOfStock, createNotification } = useNotifications();
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -122,10 +125,19 @@ const AdminMenu = () => {
         await updateDoc(doc(db, 'menuItems', editingItem.id), itemData);
         toast.success('Item updated successfully');
       } else {
-        await addDoc(collection(db, 'menuItems'), {
+        const docRef = await addDoc(collection(db, 'menuItems'), {
           ...itemData,
           createdAt: new Date()
         });
+        
+        // Create notification for new menu item
+        try {
+          await menuItemAdded(formData.name);
+        } catch (notificationError) {
+          console.error('Error creating menu item notification:', notificationError);
+          // Don't fail the item creation if notifications fail
+        }
+        
         toast.success('Item added successfully');
       }
 
@@ -180,11 +192,24 @@ const AdminMenu = () => {
 
   const toggleActive = async (item) => {
     try {
+      const newActiveStatus = !item.isActive;
+      
       await updateDoc(doc(db, 'menuItems', item.id), {
-        isActive: !item.isActive,
+        isActive: newActiveStatus,
         updatedAt: new Date()
       });
-      toast.success(`Item ${!item.isActive ? 'activated' : 'deactivated'}`);
+      
+      // Create notification if item is being deactivated (out of stock)
+      try {
+        if (!newActiveStatus) {
+          await menuItemOutOfStock(item.name);
+        }
+      } catch (notificationError) {
+        console.error('Error creating out-of-stock notification:', notificationError);
+        // Don't fail the status update if notifications fail
+      }
+      
+      toast.success(`Item ${newActiveStatus ? 'activated' : 'deactivated'}`);
     } catch (error) {
       console.error('Error updating item status:', error);
       toast.error('Error updating item status');
@@ -490,6 +515,8 @@ const AdminMenu = () => {
           </div>
         </div>
       )}
+      
+      {/* Notification Test Component - Development Only */}
     </div>
   );
 };

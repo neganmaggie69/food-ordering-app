@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, MapPin, CreditCard, Truck } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotifications } from '../../contexts/NotificationContext';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import toast from 'react-hot-toast';
@@ -10,6 +11,7 @@ import './CheckoutModal.scss';
 const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
   const { cartItems, getTotalPrice, clearCart } = useCart();
   const { user } = useAuth();
+  const { orderPlaced } = useNotifications();
   const [loading, setLoading] = useState(false);
   const [orderData, setOrderData] = useState({
     address: '',
@@ -118,22 +120,35 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
           wallet: true
         },
       handler: async function (response) {
+        // Save order with payment details - only include defined fields
+        const finalOrder = {
+          ...orderDetails,
+          paymentId: response.razorpay_payment_id,
+          paymentStatus: 'paid'
+        };
+        
+        // Only add razorpaySignature if it exists
+        if (response.razorpay_signature) {
+          finalOrder.razorpaySignature = response.razorpay_signature;
+        }
+        
         try {
-          // Save order with payment details - only include defined fields
-          const finalOrder = {
-            ...orderDetails,
-            paymentId: response.razorpay_payment_id,
-            paymentStatus: 'paid'
-          };
-          
-          // Only add razorpaySignature if it exists
-          if (response.razorpay_signature) {
-            finalOrder.razorpaySignature = response.razorpay_signature;
-          }
-          
           console.log('Saving order:', finalOrder);
           const docRef = await saveOrderWithRetry(finalOrder);
           console.log('Order saved with ID:', docRef.id);
+          
+          // Create notifications for order placement
+          try {
+            await orderPlaced({
+              customerName: user.phoneNumber || user.email || 'Customer',
+              total: getTotalPrice(),
+              items: cartItems
+            });
+            console.log('Order notification created successfully');
+          } catch (notificationError) {
+            console.error('Error creating notifications:', notificationError);
+            // Don't fail the order if notifications fail
+          }
           
           clearCart();
           toast.success('Payment successful! Order placed.');
@@ -217,7 +232,23 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
         }
       } else {
         // For COD
-        await saveOrderWithRetry(baseOrder);
+        const orderDoc = await saveOrderWithRetry(baseOrder);
+        
+        // Create notifications for order placement
+        try {
+          // Notify admin about new order with meaningful information
+          await orderPlaced({
+            customerName: user.phoneNumber || user.email || 'Customer',
+            total: getTotalPrice(),
+            items: cartItems
+          });
+          
+          console.log('Order notification created successfully');
+        } catch (notificationError) {
+          console.error('Error creating notifications:', notificationError);
+          // Don't fail the order if notifications fail
+        }
+        
         clearCart();
         toast.success('Order placed successfully!');
         onClose();
