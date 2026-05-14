@@ -168,6 +168,77 @@
           }
         }
       }
+
+      .confirmation-checkbox {
+        background-color: rgba($primary-color, 0.05);
+        border: 2px solid $primary-color;
+        border-radius: $border-radius-lg;
+        padding: $spacing-4;
+        margin-top: $spacing-2;
+
+        .checkbox-label {
+          @include flex-start;
+          gap: $spacing-3;
+          cursor: pointer;
+          margin: 0;
+
+          .checkbox-input {
+            display: none;
+          }
+
+          .checkbox-custom {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid $primary-color;
+            border-radius: $border-radius-sm;
+            background: white;
+            position: relative;
+            flex-shrink: 0;
+            transition: all $transition-fast;
+
+            &::after {
+              content: '';
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%) scale(0);
+              width: 0.5rem;
+              height: 0.75rem;
+              border: 2px solid white;
+              border-top: none;
+              border-left: none;
+              transform-origin: center;
+              transition: all $transition-fast;
+            }
+          }
+
+          .checkbox-text {
+            font-size: 0.875rem;
+            color: $primary-color;
+            line-height: 1.4;
+            font-weight: 500;
+
+            strong {
+              color: $accent-color;
+              font-weight: 600;
+            }
+          }
+
+          &:hover .checkbox-custom {
+            border-color: $primary-hover;
+            box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+          }
+        }
+
+        .checkbox-input:checked + .checkbox-custom {
+          background: $primary-color;
+          border-color: $primary-color;
+
+          &::after {
+            transform: translate(-50%, -50%) scale(1) rotate(45deg);
+          }
+        }
+      }
     }
   }
 
@@ -181,6 +252,20 @@
       width: 100%;
       padding: $spacing-3 $spacing-4;
       font-weight: 500;
+      transition: all $transition-fast;
+
+      &.disabled,
+      &:disabled {
+        background-color: $gray-300;
+        color: $gray-500;
+        cursor: not-allowed;
+        opacity: 0.6;
+
+        &:hover {
+          background-color: $gray-300;
+          transform: none;
+        }
+      }
     }
   }
 }

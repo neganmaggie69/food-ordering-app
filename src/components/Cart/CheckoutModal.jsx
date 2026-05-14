@@ -18,6 +18,7 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
     paymentMethod: 'cod', // 'cod' or 'razorpay'
     notes: ''
   });
+  const [confirmationChecked, setConfirmationChecked] = useState(false);
 
   const cleanObjectForFirestore = (obj) => {
     const cleaned = {};
@@ -207,6 +208,11 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
       return;
     }
 
+    if (!confirmationChecked) {
+      toast.error('Please confirm that you understand this service operates only in Bir, Himachal Pradesh, PIN - 176077 area');
+      return;
+    }
+
     setLoading(true);
     try {
       const baseOrder = {
@@ -359,13 +365,30 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
               />
             </div>
           </div>
+
+          <div className="section">
+            <div className="confirmation-checkbox">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={confirmationChecked}
+                  onChange={(e) => setConfirmationChecked(e.target.checked)}
+                  className="checkbox-input"
+                />
+                <span className="checkbox-custom"></span>
+                <span className="checkbox-text">
+                  I confirm that I am ordering from <strong>Bir, Himachal Pradesh, PIN - 176077</strong> and understand that delivery is only available within this location.
+                </span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <div className="modal-footer">
           <button
             onClick={handlePlaceOrder}
-            disabled={loading}
-            className="place-order-btn"
+            disabled={loading || !confirmationChecked}
+            className={`place-order-btn ${!confirmationChecked ? 'disabled' : ''}`}
           >
             {loading ? 'Processing...' : 
              orderData.paymentMethod === 'razorpay' ? 
