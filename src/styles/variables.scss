@@ -1,30 +1,37 @@
-// Colors - SpiceCraft Teal & Orange Palette
-$primary-color: #2d5a5a; // Teal (matching header)
-$primary-hover: #1f4444; // Darker teal
-$primary-light: #e6f2f2; // Very light teal
-$secondary-color: #6b7280;
-$success-color: #059669; // Emerald green
-$success-light: #d1fae5; // Light green background
-$success-dark: #047857; // Dark green text
-$error-color: #dc2626; // Red
-$error-light: #fee2e2; // Light red background
-$warning-color: #d97706; // Amber
+// Colors - Clean White & Black Theme
+$primary-color: #000000; // Pure black for primary actions
+$primary-hover: #1a1a1a; // Very dark gray
+$primary-light: #f5f5f5; // Very light gray
+$secondary-color: #64748b; // Slate gray
+$success-color: #22c55e; // Clean green
+$success-light: #f0fdf4; // Light green background
+$success-dark: #15803d; // Dark green text
+$error-color: #dc2626; // Darker red for errors only
+$error-light: #fef2f2; // Light red background
+$warning-color: #f59e0b; // Amber
 
-// Grays - Refined palette
-$gray-50: #f8fafc;
-$gray-100: #f1f5f9;
-$gray-200: #e2e8f0;
-$gray-300: #cbd5e1;
-$gray-400: #94a3b8;
-$gray-500: #64748b;
-$gray-600: #475569;
-$gray-700: #334155;
-$gray-800: #1e293b;
-$gray-900: #0f172a;
+// Monochrome grays for clean theme
+$gray-50: #fafafa;
+$gray-100: #f5f5f5;
+$gray-200: #e5e5e5;
+$gray-300: #d4d4d4;
+$gray-400: #a3a3a3;
+$gray-500: #737373;
+$gray-600: #525252;
+$gray-700: #404040;
+$gray-800: #262626;
+$gray-900: #171717;
 
-// Accent colors - SpiceCraft Orange
-$accent-color: #ff8c42; // Orange accent (from logo)
-$accent-light: #fff4ed;
+// Accent colors - minimal
+$accent-color: #404040; // Dark gray accent
+$accent-light: #f5f5f5;
+
+// Background colors for white theme
+$background-primary: #ffffff;
+$background-secondary: #fafafa;
+$background-tertiary: #f5f5f5;
+$background-secondary: #fafafa;
+$background-tertiary: #f5f5f5;
 
 // Spacing
 $spacing-1: 0.25rem;

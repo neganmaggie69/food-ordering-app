@@ -2,12 +2,12 @@
 @import '../../styles/mixins.scss';
 
 .header {
-  background: #2d5a5a;
-  box-shadow: $shadow-md;
+  background: #ffffff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   position: sticky;
   top: 0;
   z-index: 50;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #f5f5f5;
 
   .container {
     @include flex-between;
@@ -35,7 +35,7 @@
       @include touch-target;
       border: none;
       background: none;
-      color: rgba(255, 255, 255, 0.8);
+      color: #525252;
       border-radius: $border-radius-lg;
       cursor: pointer;
       transition: all $transition-fast;
@@ -46,8 +46,8 @@
       }
 
       &:hover {
-        color: white;
-        background-color: rgba(255, 255, 255, 0.1);
+        color: #000000;
+        background-color: #fafafa;
       }
 
       svg {
@@ -90,10 +90,7 @@
       .logo {
         font-size: 1.5rem;
         font-weight: 700;
-        background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #000000;
         margin: 0;
         
         @include mobile {
@@ -106,10 +103,7 @@
     .logo {
       font-size: 1.5rem;
       font-weight: 700;
-      background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #000000;
       margin: 0;
       
       @include mobile {
@@ -130,11 +124,12 @@
       @include flex-center;
       @include touch-target;
       border: none;
-      background: none;
-      color: rgba(255, 255, 255, 0.8);
+      background: #f5f5f5;
+      color: #000000;
       cursor: pointer;
       transition: all $transition-fast;
       border-radius: $border-radius-lg;
+      box-shadow: $shadow-sm;
 
       @include mobile {
         min-width: 40px;
@@ -143,7 +138,8 @@
 
       &:hover {
         color: white;
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: #000000;
+        box-shadow: $shadow;
       }
 
       .icon {
@@ -162,11 +158,12 @@
       @include flex-center;
       @include touch-target;
       border: none;
-      background: none;
-      color: rgba(255, 255, 255, 0.8);
+      background: #f5f5f5;
+      color: #000000;
       cursor: pointer;
       transition: all $transition-fast;
       border-radius: $border-radius-lg;
+      box-shadow: $shadow-sm;
 
       @include mobile {
         min-width: 40px;
@@ -175,7 +172,8 @@
 
       &:hover {
         color: white;
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: #000000;
+        box-shadow: $shadow;
       }
 
       svg {
@@ -192,7 +190,7 @@
         position: absolute;
         top: 0.125rem;
         right: 0.125rem;
-        background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
+        background: #000000;
         color: white;
         font-size: 0.75rem;
         font-weight: 600;
@@ -220,8 +218,8 @@
         gap: $spacing-1;
         @include touch-target;
         border: none;
-        background: none;
-        color: rgba(255, 255, 255, 0.8);
+        background: #f5f5f5;
+        color: #000000;
         cursor: pointer;
         transition: all $transition-fast;
         border-radius: $border-radius-lg;
@@ -236,7 +234,7 @@
 
         &:hover {
           color: white;
-          background-color: rgba(255, 255, 255, 0.1);
+          background-color: #000000;
         }
 
         &:focus {
@@ -260,7 +258,7 @@
 
         .admin-badge {
           font-size: 0.7rem;
-          background: linear-gradient(135deg, $accent-color 0%, darken($accent-color, 10%) 100%);
+          background: #000000;
           color: white;
           padding: 2px 6px;
           border-radius: $border-radius-full;
@@ -355,18 +353,20 @@
     }
 
     .login-btn {
-      background: rgba(255, 255, 255, 0.1);
+      background: #000000;
       color: white;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: none;
       padding: $spacing-2 $spacing-4;
       border-radius: $border-radius-lg;
       font-weight: 500;
       cursor: pointer;
       transition: all $transition-fast;
+      box-shadow: $shadow-sm;
       
       &:hover {
-        background: rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 255, 255, 0.3);
+        background: #1a1a1a;
+        transform: translateY(-1px);
+        box-shadow: $shadow-md;
       }
       
       @include mobile {
