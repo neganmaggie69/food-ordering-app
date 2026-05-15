@@ -6,6 +6,7 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import Header from './components/Layout/Header';
 import Sidebar from './components/Layout/Sidebar';
 import FloatingContact from './components/Layout/FloatingContact';
+import FloatingCheckout from './components/Cart/FloatingCheckout';
 import Footer from './components/Layout/Footer';
 import MenuSection from './components/Menu/MenuSection';
 import OrdersSection from './components/Orders/OrdersSection';
@@ -68,6 +69,14 @@ function App() {
             
             {/* Floating Contact Buttons */}
             <FloatingContact />
+            
+            {/* Floating Checkout Button */}
+            <FloatingCheckout
+              onLoginRequired={() => {
+                setLoginModalOpen(true);
+              }}
+              onOrderSuccess={handleOrderSuccess}
+            />
             
             <LoginModal
               isOpen={loginModalOpen}

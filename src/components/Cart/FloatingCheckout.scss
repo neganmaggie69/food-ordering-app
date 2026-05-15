@@ -1,0 +1,198 @@
+@import '../../styles/variables.scss';
+@import '../../styles/mixins.scss';
+
+.floating-checkout {
+  position: fixed;
+  bottom: $spacing-6; // Move up similar to call button
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 998; // Below modals (1000+) but above other content
+  // width: 100%;
+  max-width: 20rem; // Smaller max width for desktop
+  pointer-events: none; // Allow clicks to pass through the container
+
+  @include mobile {
+    bottom: $spacing-4; // Match call button mobile spacing
+    max-width: calc(100% - 8rem); // Leave more space for floating contact button
+    left: $spacing-2;
+    transform: none; // Remove centering on mobile
+  }
+
+  .checkout-button {
+    width: 100%;
+    background: $primary-color;
+    opacity: 0.9; // Slightly lighter
+    border: none;
+    border-radius: $border-radius-2xl;
+    padding: $spacing-3 $spacing-3; // Increased height to match call button
+    cursor: pointer;
+    transition: all $transition-fast;
+    box-shadow: $shadow-md;
+    pointer-events: auto; // Re-enable clicks for the button
+    animation: slideUp 0.3s ease-out;
+    min-height: 3.5rem; // Match call button height
+
+    @include mobile {
+      padding: $spacing-2 $spacing-2;
+      border-radius: $border-radius-xl;
+      box-shadow: $shadow-sm;
+      min-height: 3rem; // Match mobile call button height
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: $shadow-lg;
+      opacity: 1; // Full opacity on hover
+
+      @include mobile {
+        transform: none; // Disable hover effects on mobile
+        box-shadow: $shadow-sm;
+        opacity: 0.9; // Keep same opacity on mobile
+      }
+
+      .arrow-icon {
+        transform: translateX(2px);
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: $shadow-sm;
+    }
+
+    .button-content {
+      @include flex-between;
+      align-items: center;
+      color: white;
+      font-weight: 500; // Lighter font weight
+
+      .left-section {
+        @include flex-start;
+        align-items: center;
+        gap: $spacing-2;
+
+        @include mobile {
+          gap: $spacing-1;
+        }
+
+        .cart-icon-wrapper {
+          position: relative;
+          @include flex-center;
+
+          .cart-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+
+            @include mobile {
+              width: 1rem;
+              height: 1rem;
+            }
+          }
+
+          .item-count {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: $accent-color;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            min-width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            @include flex-center;
+            border: 1px solid white;
+
+            @include mobile {
+              font-size: 0.6rem;
+              min-width: 0.875rem;
+              height: 0.875rem;
+              top: -4px;
+              right: -4px;
+            }
+          }
+        }
+
+        .cart-info {
+          .total-price {
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1;
+
+            @include mobile {
+              font-size: 0.85rem;
+            }
+          }
+        }
+      }
+
+      .separator {
+        width: 1px;
+        height: 1.5rem;
+        background: rgba(white, 0.3);
+        margin: 0 $spacing-2;
+
+        @include mobile {
+          display: none; // Hide separator on mobile
+        }
+      }
+
+      .right-section {
+        @include flex-start;
+        align-items: center;
+        gap: $spacing-1;
+
+        @include mobile {
+          margin-left: $spacing-2; // Keep some space on mobile
+        }
+
+        .checkout-text {
+          font-size: 0.85rem;
+          font-weight: 500;
+          white-space: nowrap;
+
+          @include mobile {
+            font-size: 0.75rem;
+          }
+        }
+
+        .arrow-icon {
+          width: 1rem;
+          height: 1rem;
+          transition: transform $transition-fast;
+
+          @include mobile {
+            width: 0.875rem;
+            height: 0.875rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animation for when the button appears
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+// Responsive breakpoints for different screen sizes
+@include tablet {
+  .floating-checkout {
+    max-width: 18rem;
+  }
+}
+
+@include desktop {
+  .floating-checkout {
+    max-width: 20rem;
+    bottom: $spacing-6;
+  }
+}
