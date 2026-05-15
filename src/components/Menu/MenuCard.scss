@@ -305,7 +305,7 @@
         flex-shrink: 0;
 
         @include mobile {
-          gap: 4px;
+          gap: 2px;
         }
 
         .quantity-btn {
@@ -320,9 +320,10 @@
           transition: all $transition-fast;
 
           @include mobile {
-            width: 1.75rem;
-            height: 1.75rem;
+            width: 1.5rem;
+            height: 1.5rem;
             border-radius: 4px;
+            border-width: 1px;
           }
 
           &:hover {
@@ -352,8 +353,8 @@
             height: 0.875rem;
             
             @include mobile {
-              width: 0.75rem;
-              height: 0.75rem;
+              width: 0.625rem;
+              height: 0.625rem;
             }
           }
         }
@@ -366,8 +367,8 @@
           color: $gray-800;
           
           @include mobile {
-            font-size: 0.875rem;
-            min-width: 1.25rem;
+            font-size: 0.8rem;
+            min-width: 1rem;
           }
         }
       }

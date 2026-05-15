@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, MapPin, CreditCard, Truck } from 'lucide-react';
+import { X, MapPin, CreditCard, Truck, Package } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import './CheckoutModal.scss';
 
 const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
-  const { cartItems, getTotalPrice, clearCart } = useCart();
+  const { cartItems, getTotalPrice, getDeliveryFee, deliveryType, setDeliveryType, clearCart } = useCart();
   const { user } = useAuth();
   const { orderPlaced } = useNotifications();
   const [loading, setLoading] = useState(false);
@@ -19,6 +19,10 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
     notes: ''
   });
   const [confirmationChecked, setConfirmationChecked] = useState(false);
+
+  const getFinalTotal = () => {
+    return getTotalPrice() + getDeliveryFee();
+  };
 
   const cleanObjectForFirestore = (obj) => {
     const cleaned = {};
@@ -109,7 +113,7 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
 
       const options = {
         key: razorpayKey,
-        amount: getTotalPrice() * 100, // Amount in paise
+        amount: getFinalTotal() * 100, // Amount in paise
         currency: 'INR',
         name: 'SpiceCraft',
         description: 'Food Order Payment',
@@ -142,7 +146,7 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
           try {
             await orderPlaced({
               customerName: user.phoneNumber || user.email || 'Customer',
-              total: getTotalPrice(),
+              total: getFinalTotal(),
               items: cartItems
             });
             console.log('Order notification created successfully');
@@ -203,7 +207,7 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
   };
 
   const handlePlaceOrder = async () => {
-    if (!orderData.address.trim()) {
+    if (deliveryType === 'delivery' && !orderData.address.trim()) {
       toast.error('Please enter delivery address');
       return;
     }
@@ -219,8 +223,11 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
         userId: user.uid,
         userPhone: user.phoneNumber,
         items: cartItems,
-        totalAmount: getTotalPrice(),
-        address: orderData.address,
+        totalAmount: getFinalTotal(),
+        itemsTotal: getTotalPrice(),
+        deliveryFee: getDeliveryFee(),
+        deliveryType: deliveryType,
+        address: deliveryType === 'delivery' ? orderData.address : 'Pickup from restaurant',
         paymentMethod: orderData.paymentMethod,
         notes: orderData.notes,
         status: 'pending',
@@ -245,7 +252,7 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
           // Notify admin about new order with meaningful information
           await orderPlaced({
             customerName: user.phoneNumber || user.email || 'Customer',
-            total: getTotalPrice(),
+            total: getFinalTotal(),
             items: cartItems
           });
           
@@ -312,8 +319,18 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
                 );
               })}
               <div className="summary-item total">
-                <span>Total</span>
+                <span>Subtotal</span>
                 <span>₹{getTotalPrice()}</span>
+              </div>
+              {deliveryType === 'delivery' && (
+                <div className="summary-item delivery-fee">
+                  <span>Delivery Fee</span>
+                  <span>₹{getDeliveryFee()}</span>
+                </div>
+              )}
+              <div className="summary-item grand-total">
+                <span>Total</span>
+                <span>₹{getFinalTotal()}</span>
               </div>
             </div>
           </div>
@@ -321,17 +338,78 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
           <div className="section">
             <div className="form-group">
               <label>
-                <MapPin />
-                Delivery Address
+                <Truck />
+                Order Type
               </label>
-              <textarea
-                value={orderData.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
-                placeholder="Enter your complete delivery address"
-                rows={3}
-              />
+              <div className="radio-group">
+                <label 
+                  className={`radio-option ${deliveryType === 'pickup' ? 'selected' : ''}`}
+                  onClick={() => setDeliveryType('pickup')}
+                >
+                  <input
+                    type="radio"
+                    name="deliveryType"
+                    value="pickup"
+                    checked={deliveryType === 'pickup'}
+                    onChange={(e) => setDeliveryType(e.target.value)}
+                  />
+                  <div className="option-content">
+                    <Package />
+                    <span>Pickup</span>
+                  </div>
+                </label>
+                <label 
+                  className={`radio-option ${deliveryType === 'delivery' ? 'selected' : ''}`}
+                  onClick={() => setDeliveryType('delivery')}
+                >
+                  <input
+                    type="radio"
+                    name="deliveryType"
+                    value="delivery"
+                    checked={deliveryType === 'delivery'}
+                    onChange={(e) => setDeliveryType(e.target.value)}
+                  />
+                  <div className="option-content">
+                    <Truck />
+                    <span>Delivery (+₹40)</span>
+                  </div>
+                </label>
+              </div>
             </div>
           </div>
+
+          {deliveryType === 'delivery' && (
+            <div className="section">
+              <div className="form-group">
+                <label>
+                  <MapPin />
+                  Delivery Address
+                </label>
+                <textarea
+                  value={orderData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  placeholder="Enter your complete delivery address"
+                  rows={3}
+                />
+              </div>
+            </div>
+          )}
+
+          {deliveryType === 'pickup' && (
+            <div className="section">
+              <div className="pickup-info">
+                <div className="info-box">
+                  <Package />
+                  <div>
+                    <h4>Pickup Information</h4>
+                    <p>Please collect your order from:</p>
+                    <p><strong>Near Ajay Pal Temple, Chougan, Bir, HP, Pin Code: 176077</strong></p>
+                    <p>We'll notify you when your order is ready for pickup.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="section">
             <div className="form-group">
@@ -414,8 +492,8 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
           >
             {loading ? 'Processing...' : 
              orderData.paymentMethod === 'razorpay' ? 
-             `Pay ₹${getTotalPrice()}` : 
-             `Place Order - ₹${getTotalPrice()}`}
+             `Pay ₹${getFinalTotal()}` : 
+             `Place Order - ₹${getFinalTotal()}`}
           </button>
         </div>
       </div>

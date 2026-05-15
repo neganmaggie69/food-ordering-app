@@ -180,7 +180,7 @@
         }
 
         @include mobile {
-          padding: $spacing-3;
+          padding: $spacing-2;
           gap: $spacing-2;
         }
 
@@ -254,15 +254,27 @@
           gap: $spacing-2;
           flex-shrink: 0;
 
+          @include mobile {
+            gap: $spacing-1;
+          }
+
           .quantity-btn {
             @include flex-center;
-            @include touch-target;
             border: 2px solid $gray-200;
             background-color: white;
             color: $gray-700;
             border-radius: $border-radius-lg;
             cursor: pointer;
             transition: all $transition-fast;
+            min-height: 44px;
+            min-width: 44px;
+
+            @include mobile {
+              width: 2rem;
+              height: 2rem;
+              min-width: 2rem;
+              min-height: 2rem;
+            }
 
             &:hover {
               border-color: $gray-300;
@@ -284,6 +296,11 @@
             svg {
               width: 1rem;
               height: 1rem;
+
+              @include mobile {
+                width: 0.875rem;
+                height: 0.875rem;
+              }
             }
           }
 

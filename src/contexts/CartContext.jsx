@@ -12,6 +12,7 @@ export const useCart = () => {
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+  const [deliveryType, setDeliveryType] = useState('delivery'); // 'pickup' or 'delivery'
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -19,12 +20,22 @@ export const CartProvider = ({ children }) => {
     if (savedCart) {
       setCartItems(JSON.parse(savedCart));
     }
+    
+    const savedDeliveryType = localStorage.getItem('deliveryType');
+    if (savedDeliveryType) {
+      setDeliveryType(savedDeliveryType);
+    }
   }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
+
+  // Save delivery type to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('deliveryType', deliveryType);
+  }, [deliveryType]);
 
   const addToCart = (item) => {
     setCartItems(prev => {
@@ -82,8 +93,8 @@ export const CartProvider = ({ children }) => {
     setCartItems([]);
   };
 
-  const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => {
+  const getTotalPrice = (includeDelivery = false) => {
+    const itemsTotal = cartItems.reduce((total, item) => {
       let itemPrice = item.price;
       
       // Add add-ons price if any
@@ -96,6 +107,17 @@ export const CartProvider = ({ children }) => {
       
       return total + (itemPrice * item.quantity);
     }, 0);
+
+    // Add delivery fee if delivery is selected and includeDelivery is true
+    if (includeDelivery && deliveryType === 'delivery') {
+      return itemsTotal + 40; // Standard delivery fee
+    }
+    
+    return itemsTotal;
+  };
+
+  const getDeliveryFee = () => {
+    return deliveryType === 'delivery' ? 40 : 0;
   };
 
   const getTotalItems = () => {
@@ -104,11 +126,14 @@ export const CartProvider = ({ children }) => {
 
   const value = {
     cartItems,
+    deliveryType,
+    setDeliveryType,
     addToCart,
     removeFromCart,
     updateQuantity,
     clearCart,
     getTotalPrice,
+    getDeliveryFee,
     getTotalItems
   };
 

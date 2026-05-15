@@ -46,7 +46,7 @@ export const restaurantConfig = {
     timezone: 'Asia/Kolkata',
     deliveryRadius: '10km', // Delivery radius
     minimumOrder: 200, // Minimum order amount
-    deliveryFee: 50 // Delivery fee
+    deliveryFee: 40 // Standard Delivery fee
   }
 };
 

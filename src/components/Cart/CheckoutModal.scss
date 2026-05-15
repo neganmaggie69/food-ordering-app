@@ -103,7 +103,20 @@
           font-size: 0.875rem;
           color: $primary-color;
 
+          &.delivery-fee {
+            color: $accent-color;
+            font-style: italic;
+          }
+
           &.total {
+            border-top: 1px solid rgba($primary-color, 0.3);
+            padding-top: $spacing-2;
+            margin-top: $spacing-2;
+            font-weight: 600;
+            font-size: 0.9rem;
+          }
+
+          &.grand-total {
             border-top: 2px solid $primary-color;
             padding-top: $spacing-2;
             margin-top: $spacing-2;
@@ -301,6 +314,52 @@
 
           &::after {
             transform: translate(-50%, -50%) scale(1) rotate(45deg);
+          }
+        }
+      }
+
+      .pickup-info {
+        .info-box {
+          @include flex-start;
+          gap: $spacing-3;
+          background: linear-gradient(135deg, rgba($primary-color, 0.05) 0%, rgba($accent-color, 0.03) 100%);
+          border: 2px solid rgba($primary-color, 0.2);
+          border-radius: $border-radius-lg;
+          padding: $spacing-3;
+
+          svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: $primary-color;
+            flex-shrink: 0;
+            margin-top: 2px;
+          }
+
+          div {
+            flex: 1;
+
+            h4 {
+              font-size: 0.9rem;
+              font-weight: 600;
+              color: $primary-color;
+              margin: 0 0 $spacing-1 0;
+            }
+
+            p {
+              font-size: 0.8rem;
+              color: $primary-color;
+              margin: 0 0 $spacing-1 0;
+              line-height: 1.4;
+
+              &:last-child {
+                margin-bottom: 0;
+              }
+
+              strong {
+                color: $accent-color;
+                font-weight: 600;
+              }
+            }
           }
         }
       }
