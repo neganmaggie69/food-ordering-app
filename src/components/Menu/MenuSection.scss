@@ -14,43 +14,43 @@
   }
 
   .section-title {
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
     color: #000000;
-    margin-bottom: $spacing-6;
+    margin-bottom: $spacing-3;
     text-align: center;
     letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     
     @include mobile {
-      font-size: 1.75rem;
-      margin-bottom: $spacing-4;
+      font-size: 0.875rem;
+      margin-bottom: $spacing-2;
+      white-space: normal;
+      overflow: visible;
     }
 
     .greeting-text {
-      display: block;
+      display: inline;
       font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
       font-weight: 600;
       color: #000000;
       animation: fadeIn 1s ease-out;
+      margin-right: $spacing-2;
       
       @include mobile {
-        font-size: 1.5rem;
+        margin-right: $spacing-1;
       }
     }
 
     .subtitle {
-      display: block;
-      font-size: 1.2rem;
+      display: inline;
+      font-size: inherit;
       font-weight: 500;
       color: #404040;
-      margin-top: $spacing-2;
       font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
       animation: fadeIn 1s ease-out 0.5s both;
-      
-      @include mobile {
-        font-size: 1rem;
-        margin-top: $spacing-1;
-      }
     }
   }
 
