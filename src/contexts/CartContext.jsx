@@ -184,6 +184,15 @@ export const CartProvider = ({ children }) => {
   };
 
   const updateMenuItems = (items) => {
+    console.log('CartContext: Updating menu items with', items.length, 'items');
+    
+    // Log items with stock for debugging
+    items.forEach(item => {
+      if (item.stock !== undefined) {
+        console.log(`CartContext: ${item.name} - Stock: ${item.stock}, Active: ${item.isActive}`);
+      }
+    });
+    
     setMenuItems(items);
     // Auto-cleanup cart when menu items are updated
     cleanupUnavailableItems(items);

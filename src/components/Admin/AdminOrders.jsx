@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { Clock, CheckCircle, XCircle, Truck, Phone, MapPin, CreditCard, ChevronDown, Filter } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -12,6 +13,7 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const { user } = useAuth();
   const { orderStatusChanged, orderDelivered, paymentReceived } = useNotifications();
 
   useEffect(() => {
@@ -55,11 +57,11 @@ const AdminOrders = () => {
       // Create notifications for status changes
       try {
         if (order && order.userId) {
-          await orderStatusChanged(order, newStatus, order.userId);
+          await orderStatusChanged(order, newStatus, order.userId, user?.uid);
           
           // Special notification for delivery
           if (newStatus === 'delivered') {
-            await orderDelivered(order, order.userId);
+            await orderDelivered(order, order.userId, user?.uid);
           }
         }
       } catch (notificationError) {

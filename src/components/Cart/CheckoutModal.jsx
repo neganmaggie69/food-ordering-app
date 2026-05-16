@@ -26,6 +26,8 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
 
   const updateStockLevels = async (orderItems) => {
     try {
+      console.log('Starting stock update transaction for items:', orderItems);
+      
       await runTransaction(db, async (transaction) => {
         // Get all menu items that need stock updates
         const stockUpdates = [];
@@ -42,6 +44,8 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
           const currentStock = menuItemData.stock || 0;
           const orderedQuantity = item.quantity;
           
+          console.log(`Item: ${item.name}, Current Stock: ${currentStock}, Ordered: ${orderedQuantity}`);
+          
           if (currentStock < orderedQuantity) {
             throw new Error(`Insufficient stock for ${item.name}. Available: ${currentStock}, Ordered: ${orderedQuantity}`);
           }
@@ -50,7 +54,8 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
           stockUpdates.push({
             ref: menuItemRef,
             newStock: newStock,
-            itemName: item.name
+            itemName: item.name,
+            itemId: item.id
           });
         }
         
@@ -64,13 +69,17 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
           // Auto-deactivate if stock becomes 0
           if (update.newStock === 0) {
             updateData.isActive = false;
+            console.log(`Auto-deactivating ${update.itemName} - stock is now 0`);
           }
           
+          console.log(`Updating ${update.itemName}: stock ${update.newStock}, active: ${updateData.isActive !== false}`);
           transaction.update(update.ref, updateData);
         }
         
-        console.log('Stock levels updated successfully for order');
+        console.log('All stock updates applied successfully');
       });
+      
+      console.log('Stock levels transaction completed successfully');
     } catch (error) {
       console.error('Error updating stock levels:', error);
       throw error;
@@ -205,7 +214,8 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
               await orderPlaced({
                 customerName: user.phoneNumber || user.email || 'Customer',
                 total: getFinalTotal(),
-                items: cartItems
+                items: cartItems,
+                userId: user.uid
               });
               console.log('Order notification created successfully');
             } catch (notificationError) {
@@ -318,7 +328,8 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
             await orderPlaced({
               customerName: user.phoneNumber || user.email || 'Customer',
               total: getFinalTotal(),
-              items: cartItems
+              items: cartItems,
+              userId: user.uid
             });
             
             console.log('Order notification created successfully');

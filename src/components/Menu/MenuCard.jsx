@@ -15,6 +15,9 @@ const MenuCard = ({ item, menuItems = [] }) => {
   const currentCartQuantity = getCurrentCartQuantity(item);
   const canAdd = canAddToCart(item, menuItems);
 
+  // Debug logging for stock changes
+  console.log(`MenuCard ${item.name}: stock=${item.stock}, availableStock=${availableStock}, isActive=${item.isActive}`);
+
   const handleAdd = () => {
     if (item.isActive && canAdd) {
       // Check if item has add-ons

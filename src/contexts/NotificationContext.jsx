@@ -49,12 +49,16 @@ export const NotificationProvider = ({ children }) => {
         };
       });
 
-      // Filter notifications client-side based on user role
+      // Filter notifications client-side based on user role and specific user ID
       let userNotifications = [];
       
       if (isAdmin) {
-        // Admin gets all notifications
-        userNotifications = allNotifications;
+        // Admin gets admin notifications and general ones, but only for their specific user ID
+        userNotifications = allNotifications.filter(notification => 
+          (notification.type === 'admin' && (notification.recipientId === 'admin' || notification.recipientId === user.uid)) ||
+          notification.recipientId === 'all' ||
+          notification.type === 'all'
+        );
       } else {
         // Regular users get their personal notifications and general ones
         userNotifications = allNotifications.filter(notification => 
@@ -200,7 +204,7 @@ export const NotificationProvider = ({ children }) => {
   const notificationHelpers = {
     // Order notifications
     orderPlaced: (orderData) => {
-      const { customerName, total, items } = orderData;
+      const { customerName, total, items, userId } = orderData;
       const itemCount = items?.length || 0;
       
       // Create a description of items
@@ -217,23 +221,45 @@ export const NotificationProvider = ({ children }) => {
         itemDescription = `${items[0].name}, ${items[1].name} & ${itemCount - 2} more items`;
       }
       
-      const message = `New order: ${itemDescription} - ₹${total} from ${customerName}`;
+      const adminMessage = `New order: ${itemDescription} - ₹${total} from ${customerName}`;
+      const userMessage = `Order placed successfully! ${itemDescription} - ₹${total}`;
       
-      console.log('Creating order placed notification:', orderData);
-      return createNotification({
+      console.log('Creating order placed notifications:', orderData);
+      
+      // Create notification for admin (only if the user placing order is not admin)
+      const adminNotificationPromise = user && !isAdmin ? createNotification({
         type: 'admin',
         category: 'order',
         title: 'New Order Received',
-        message,
-        data: { customerName, total, itemCount, itemDescription },
+        message: adminMessage,
+        data: { customerName, total, itemCount, itemDescription, userId },
         priority: 'high',
         recipientId: 'admin'
-      });
+      }) : Promise.resolve();
+      
+      // Create notification for user (order confirmation)
+      const userNotificationPromise = userId ? createNotification({
+        type: 'user',
+        category: 'order',
+        title: 'Order Placed Successfully',
+        message: userMessage,
+        data: { total, itemCount, itemDescription },
+        priority: 'high',
+        recipientId: userId
+      }) : Promise.resolve();
+      
+      return Promise.all([adminNotificationPromise, userNotificationPromise]);
     },
 
-    orderStatusChanged: (orderData, status, recipientId) => {
+    orderStatusChanged: (orderData, status, recipientId, adminUserId = null) => {
       const { items } = orderData || {};
       const itemCount = items?.length || 0;
+      
+      // Don't create notification if admin is updating their own order
+      if (adminUserId && recipientId === adminUserId) {
+        console.log('Skipping notification - admin updating their own order');
+        return Promise.resolve();
+      }
       
       // Create a description of items
       let message = '';
@@ -260,7 +286,13 @@ export const NotificationProvider = ({ children }) => {
       });
     },
 
-    orderDelivered: (orderData, recipientId) => {
+    orderDelivered: (orderData, recipientId, adminUserId = null) => {
+      // Don't create notification if admin is updating their own order
+      if (adminUserId && recipientId === adminUserId) {
+        console.log('Skipping delivery notification - admin updating their own order');
+        return Promise.resolve();
+      }
+      
       const { items } = orderData;
       const itemCount = items?.length || 0;
       
@@ -307,7 +339,8 @@ export const NotificationProvider = ({ children }) => {
       title: 'Item Out of Stock',
       message: `${itemName} is now out of stock`,
       data: { itemName },
-      priority: 'medium'
+      priority: 'medium',
+      recipientId: 'admin'
     }),
 
     // System notifications
@@ -339,7 +372,8 @@ export const NotificationProvider = ({ children }) => {
       title: 'Payment Received',
       message: `Payment of ₹${amount} received for order #${orderId}`,
       data: { orderId, amount },
-      priority: 'medium'
+      priority: 'medium',
+      recipientId: 'admin'
     }),
 
     paymentFailed: (orderId, recipientId) => createNotification({

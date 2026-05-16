@@ -18,17 +18,29 @@ const MenuSection = () => {
     const q = query(collection(db, 'menuItems'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
+      console.log('MenuSection: Received menu items update from Firestore');
       const items = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+      
+      // Log stock levels for debugging
+      items.forEach(item => {
+        if (item.stock !== undefined) {
+          console.log(`MenuSection: ${item.name} - Stock: ${item.stock}, Active: ${item.isActive}`);
+        }
+      });
+      
       setMenuItems(items);
       updateMenuItems(items); // Update cart context with menu items
+      setLoading(false);
+    }, (error) => {
+      console.error('MenuSection: Error listening to menu items:', error);
       setLoading(false);
     });
 
     return unsubscribe;
-  }, [updateMenuItems]);
+  }, []); // Remove updateMenuItems from dependencies to avoid re-creating the listener
 
   const categories = ['all', ...new Set(menuItems.map(item => item.category))];
   
@@ -104,7 +116,11 @@ const MenuSection = () => {
         ) : (
           <div className="menu-grid">
             {filteredItems.map(item => (
-              <MenuCard key={item.id} item={item} menuItems={menuItems} />
+              <MenuCard 
+                key={`${item.id}-${item.stock}-${item.isActive}`} 
+                item={item} 
+                menuItems={menuItems} 
+              />
             ))}
           </div>
         )}
