@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -7,9 +7,16 @@ import CheckoutModal from './CheckoutModal';
 import './CartModal.scss';
 
 const CartModal = ({ isOpen, onClose, onLoginRequired, onOrderSuccess }) => {
-  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, getTotalItems, menuItems, cleanupUnavailableItems } = useCart();
   const { user } = useAuth();
   const [showCheckout, setShowCheckout] = useState(false);
+
+  // Clean up unavailable items when modal opens
+  useEffect(() => {
+    if (isOpen && menuItems.length > 0) {
+      cleanupUnavailableItems();
+    }
+  }, [isOpen, menuItems, cleanupUnavailableItems]);
 
   const handleCheckout = () => {
     if (!user) {
@@ -18,6 +25,9 @@ const CartModal = ({ isOpen, onClose, onLoginRequired, onOrderSuccess }) => {
     }
     setShowCheckout(true);
   };
+
+  const totalPrice = getTotalPrice();
+  const totalItems = getTotalItems();
 
   if (!isOpen) return null;
 
@@ -28,7 +38,7 @@ const CartModal = ({ isOpen, onClose, onLoginRequired, onOrderSuccess }) => {
           <div className="modal-header">
             <div className="header-content">
               <ShoppingBag />
-              <h2>Cart ({getTotalItems()} items)</h2>
+              <h2>Cart ({totalItems} items)</h2>
             </div>
             <button onClick={onClose} className="close-btn">
               <X />
@@ -74,15 +84,20 @@ const CartModal = ({ isOpen, onClose, onLoginRequired, onOrderSuccess }) => {
                       
                       <div className="quantity-controls">
                         <button
-                          onClick={() => updateQuantity(itemKey, item.quantity - 1)}
+                          onClick={() => updateQuantity(itemKey, item.quantity - 1, menuItems)}
                           className="quantity-btn"
                         >
                           <Minus />
                         </button>
                         <span className="quantity">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(itemKey, item.quantity + 1)}
+                          onClick={() => updateQuantity(itemKey, item.quantity + 1, menuItems)}
                           className="quantity-btn primary"
+                          disabled={(() => {
+                            const menuItem = menuItems.find(mi => mi.id === item.id);
+                            const availableStock = menuItem ? (menuItem.stock || 0) : 0;
+                            return item.quantity >= availableStock;
+                          })()}
                         >
                           <Plus />
                         </button>
@@ -104,11 +119,11 @@ const CartModal = ({ isOpen, onClose, onLoginRequired, onOrderSuccess }) => {
             )}
           </div>
 
-          {cartItems.length > 0 && (
+          {cartItems.length > 0 && totalPrice > 0 && (
             <div className="modal-footer">
               <div className="total-section">
                 <span className="total-label">Total:</span>
-                <span className="total-amount">₹{getTotalPrice()}</span>
+                <span className="total-amount">₹{totalPrice}</span>
               </div>
               
               <button onClick={handleCheckout} className="checkout-btn">

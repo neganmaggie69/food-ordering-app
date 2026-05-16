@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase/config';
+import { useCart } from '../../contexts/CartContext';
 import MenuCard from './MenuCard';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import './MenuSection.scss';
@@ -10,6 +11,7 @@ const MenuSection = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [vegFilter, setVegFilter] = useState('all'); // 'all', 'veg', 'non-veg'
+  const { updateMenuItems } = useCart();
 
   useEffect(() => {
     // Query all menu items (both active and inactive)
@@ -21,11 +23,12 @@ const MenuSection = () => {
         ...doc.data()
       }));
       setMenuItems(items);
+      updateMenuItems(items); // Update cart context with menu items
       setLoading(false);
     });
 
     return unsubscribe;
-  }, []);
+  }, [updateMenuItems]);
 
   const categories = ['all', ...new Set(menuItems.map(item => item.category))];
   
@@ -101,7 +104,7 @@ const MenuSection = () => {
         ) : (
           <div className="menu-grid">
             {filteredItems.map(item => (
-              <MenuCard key={item.id} item={item} />
+              <MenuCard key={item.id} item={item} menuItems={menuItems} />
             ))}
           </div>
         )}

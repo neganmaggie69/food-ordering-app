@@ -4,21 +4,24 @@ import { useCart } from '../../contexts/CartContext';
 import AddOnsModal from './AddOnsModal';
 import './MenuCard.scss';
 
-const MenuCard = ({ item }) => {
-  const { cartItems, addToCart, updateQuantity } = useCart();
+const MenuCard = ({ item, menuItems = [] }) => {
+  const { cartItems, addToCart, updateQuantity, canAddToCart, getAvailableStock, getCurrentCartQuantity } = useCart();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showAddOnsModal, setShowAddOnsModal] = useState(false);
   
   const cartItem = cartItems.find(cartItem => cartItem.id === item.id);
   const quantity = cartItem ? cartItem.quantity : 0;
+  const availableStock = getAvailableStock(item, menuItems);
+  const currentCartQuantity = getCurrentCartQuantity(item);
+  const canAdd = canAddToCart(item, menuItems);
 
   const handleAdd = () => {
-    if (item.isActive) {
+    if (item.isActive && canAdd) {
       // Check if item has add-ons
       if (item.addOns && item.addOns.length > 0) {
         setShowAddOnsModal(true);
       } else {
-        addToCart(item);
+        addToCart(item, menuItems);
       }
     }
   };
@@ -26,19 +29,19 @@ const MenuCard = ({ item }) => {
   const handleAddToCartWithAddOns = (itemWithAddOns, quantity) => {
     // Add the item with selected add-ons to cart
     for (let i = 0; i < quantity; i++) {
-      addToCart(itemWithAddOns);
+      addToCart(itemWithAddOns, menuItems);
     }
   };
 
   const handleIncrease = () => {
-    if (item.isActive) {
-      updateQuantity(item.id, quantity + 1);
+    if (item.isActive && canAdd) {
+      updateQuantity(item.id, quantity + 1, menuItems);
     }
   };
 
   const handleDecrease = () => {
     if (item.isActive) {
-      updateQuantity(item.id, quantity - 1);
+      updateQuantity(item.id, quantity - 1, menuItems);
     }
   };
 
@@ -109,6 +112,15 @@ const MenuCard = ({ item }) => {
             </div>
           )}
 
+          {/* Stock indicator - only show low stock warnings, not out of stock */}
+          {availableStock <= 10 && availableStock > 0 && (
+            <div className="stock-indicator">
+              <span className={availableStock <= 5 ? 'low-stock' : 'medium-stock'}>
+                Only {availableStock} left!
+              </span>
+            </div>
+          )}
+
           <div className="menu-card-footer">
             <div className="menu-card-info">
               {item.category && (
@@ -116,12 +128,12 @@ const MenuCard = ({ item }) => {
               )}
             </div>
 
-            {!item.isActive ? (
+            {!item.isActive || availableStock === 0 ? (
               <div className="unavailable-badge">
-                Unavailable
+                {availableStock === 0 ? 'Out of Stock' : 'Unavailable'}
               </div>
             ) : quantity === 0 ? (
-              <button onClick={handleAdd} className="add-btn">
+              <button onClick={handleAdd} className="add-btn" disabled={!canAdd}>
                 <Plus />
                 <span>Add</span>
               </button>
@@ -131,7 +143,11 @@ const MenuCard = ({ item }) => {
                   <Minus />
                 </button>
                 <span className="quantity">{quantity}</span>
-                <button onClick={handleIncrease} className="quantity-btn primary">
+                <button 
+                  onClick={handleIncrease} 
+                  className="quantity-btn primary"
+                  disabled={!canAdd}
+                >
                   <Plus />
                 </button>
               </div>
@@ -146,6 +162,7 @@ const MenuCard = ({ item }) => {
         onClose={() => setShowAddOnsModal(false)}
         item={item}
         onAddToCart={handleAddToCartWithAddOns}
+        menuItems={menuItems}
       />
     </>
   );

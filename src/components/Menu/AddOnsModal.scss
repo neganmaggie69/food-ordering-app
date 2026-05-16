@@ -355,6 +355,18 @@
         }
       }
 
+      .stock-info {
+        font-size: 0.875rem;
+        color: $gray-600;
+        margin-bottom: $spacing-2;
+        font-style: italic;
+        text-align: center;
+
+        @include mobile {
+          font-size: 0.8rem;
+        }
+      }
+
       .quantity-controls {
         @include flex-center;
         gap: $spacing-4;

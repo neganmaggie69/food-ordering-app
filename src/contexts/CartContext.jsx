@@ -13,6 +13,7 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [deliveryType, setDeliveryType] = useState('delivery'); // 'pickup' or 'delivery'
+  const [menuItems, setMenuItems] = useState([]);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -37,7 +38,7 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('deliveryType', deliveryType);
   }, [deliveryType]);
 
-  const addToCart = (item) => {
+  const addToCart = (item, menuItems = []) => {
     setCartItems(prev => {
       // Create a unique identifier for items with add-ons
       const itemKey = item.selectedAddOns && item.selectedAddOns.length > 0 
@@ -53,6 +54,19 @@ export const CartProvider = ({ children }) => {
           return cartItem.id === item.id && (!cartItem.selectedAddOns || cartItem.selectedAddOns.length === 0);
         }
       });
+
+      // Find the menu item to check stock
+      const menuItem = menuItems.find(mi => mi.id === item.id);
+      const availableStock = menuItem ? (menuItem.stock || 0) : 0;
+      
+      // Calculate current quantity in cart for this item
+      const currentCartQuantity = existingItem ? existingItem.quantity : 0;
+      
+      // Check if adding one more would exceed stock
+      if (currentCartQuantity + 1 > availableStock) {
+        // Don't add to cart if it would exceed stock
+        return prev;
+      }
 
       if (existingItem) {
         return prev.map(cartItem =>
@@ -77,16 +91,102 @@ export const CartProvider = ({ children }) => {
     setCartItems(prev => prev.filter(item => (item.uniqueKey || item.id) !== itemKey));
   };
 
-  const updateQuantity = (itemKey, quantity) => {
+  const updateQuantity = (itemKey, quantity, menuItems = []) => {
     if (quantity <= 0) {
       removeFromCart(itemKey);
       return;
     }
-    setCartItems(prev =>
-      prev.map(item =>
-        (item.uniqueKey || item.id) === itemKey ? { ...item, quantity } : item
-      )
-    );
+    
+    setCartItems(prev => {
+      const cartItem = prev.find(item => (item.uniqueKey || item.id) === itemKey);
+      if (!cartItem) return prev;
+      
+      // Find the menu item to check stock
+      const menuItem = menuItems.find(mi => mi.id === cartItem.id);
+      const availableStock = menuItem ? (menuItem.stock || 0) : 0;
+      
+      // Don't allow quantity to exceed available stock
+      const finalQuantity = Math.min(quantity, availableStock);
+      
+      return prev.map(item =>
+        (item.uniqueKey || item.id) === itemKey ? { ...item, quantity: finalQuantity } : item
+      );
+    });
+  };
+
+  const canAddToCart = (item, menuItems = []) => {
+    const menuItem = menuItems.find(mi => mi.id === item.id);
+    const availableStock = menuItem ? (menuItem.stock || 0) : 0;
+    
+    // Find current quantity in cart
+    const itemKey = item.selectedAddOns && item.selectedAddOns.length > 0 
+      ? `${item.id}_${item.selectedAddOns.map(addon => `${addon.id}_${addon.quantity}`).join('_')}`
+      : item.id;
+    
+    const existingItem = cartItems.find(cartItem => {
+      if (item.selectedAddOns && item.selectedAddOns.length > 0) {
+        return cartItem.uniqueKey === itemKey;
+      } else {
+        return cartItem.id === item.id && (!cartItem.selectedAddOns || cartItem.selectedAddOns.length === 0);
+      }
+    });
+    
+    const currentCartQuantity = existingItem ? existingItem.quantity : 0;
+    return currentCartQuantity < availableStock;
+  };
+
+  const getAvailableStock = (item, menuItems = []) => {
+    const menuItem = menuItems.find(mi => mi.id === item.id);
+    return menuItem ? (menuItem.stock || 0) : 0;
+  };
+
+  const getCurrentCartQuantity = (item) => {
+    const itemKey = item.selectedAddOns && item.selectedAddOns.length > 0 
+      ? `${item.id}_${item.selectedAddOns.map(addon => `${addon.id}_${addon.quantity}`).join('_')}`
+      : item.id;
+    
+    const existingItem = cartItems.find(cartItem => {
+      if (item.selectedAddOns && item.selectedAddOns.length > 0) {
+        return cartItem.uniqueKey === itemKey;
+      } else {
+        return cartItem.id === item.id && (!cartItem.selectedAddOns || cartItem.selectedAddOns.length === 0);
+      }
+    });
+    
+    return existingItem ? existingItem.quantity : 0;
+  };
+
+  const cleanupUnavailableItems = (menuItemsData = menuItems) => {
+    setCartItems(prev => {
+      const validItems = prev.filter(cartItem => {
+        const menuItem = menuItemsData.find(mi => mi.id === cartItem.id);
+        
+        // Remove items that are no longer active or have no stock
+        if (!menuItem || !menuItem.isActive || (menuItem.stock || 0) === 0) {
+          return false;
+        }
+        
+        return true;
+      }).map(cartItem => {
+        const menuItem = menuItemsData.find(mi => mi.id === cartItem.id);
+        const availableStock = menuItem ? (menuItem.stock || 0) : 0;
+        
+        // Adjust quantity if it exceeds available stock
+        if (cartItem.quantity > availableStock) {
+          return { ...cartItem, quantity: availableStock };
+        }
+        
+        return cartItem;
+      });
+      
+      return validItems;
+    });
+  };
+
+  const updateMenuItems = (items) => {
+    setMenuItems(items);
+    // Auto-cleanup cart when menu items are updated
+    cleanupUnavailableItems(items);
   };
 
   const clearCart = () => {
@@ -128,13 +228,19 @@ export const CartProvider = ({ children }) => {
     cartItems,
     deliveryType,
     setDeliveryType,
+    menuItems,
+    updateMenuItems,
     addToCart,
     removeFromCart,
     updateQuantity,
     clearCart,
     getTotalPrice,
     getDeliveryFee,
-    getTotalItems
+    getTotalItems,
+    canAddToCart,
+    getAvailableStock,
+    getCurrentCartQuantity,
+    cleanupUnavailableItems
   };
 
   return (

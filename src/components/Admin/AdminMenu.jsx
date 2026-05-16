@@ -17,6 +17,8 @@ const AdminMenu = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [editingPrice, setEditingPrice] = useState(null);
   const [tempPrice, setTempPrice] = useState('');
+  const [editingStock, setEditingStock] = useState(null);
+  const [tempStock, setTempStock] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageUploading, setImageUploading] = useState(false);
@@ -31,7 +33,8 @@ const AdminMenu = () => {
     isActive: true,
     image: '',
     imagePath: '',
-    addOns: []
+    addOns: [],
+    stock: ''
   });
   const [newAddOn, setNewAddOn] = useState({ name: '', price: '' });
 
@@ -69,7 +72,8 @@ const AdminMenu = () => {
       isActive: true,
       image: '',
       imagePath: '',
-      addOns: []
+      addOns: [],
+      stock: ''
     });
     setSelectedImage(null);
     setNewAddOn({ name: '', price: '' });
@@ -115,8 +119,8 @@ const AdminMenu = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.price || !formData.category) {
-      toast.error('Please fill in all required fields');
+    if (!formData.name || !formData.price || !formData.category || !formData.stock) {
+      toast.error('Please fill in all required fields (name, price, category, and stock)');
       return;
     }
 
@@ -157,6 +161,7 @@ const AdminMenu = () => {
         isVeg: formData.isVeg,
         isActive: formData.isActive,
         addOns: formData.addOns || [],
+        stock: parseInt(formData.stock),
         ...imageData,
         updatedAt: new Date()
       };
@@ -202,7 +207,8 @@ const AdminMenu = () => {
       isActive: item.isActive,
       image: item.image || '',
       imagePath: item.imagePath || '',
-      addOns: item.addOns || []
+      addOns: item.addOns || [],
+      stock: item.stock ? item.stock.toString() : '0'
     });
     setSelectedImage(null);
     setEditingItem(item);
@@ -289,6 +295,57 @@ const AdminMenu = () => {
     setTempPrice('');
   };
 
+  const startStockEdit = (item) => {
+    setEditingStock(item.id);
+    setTempStock((item.stock || 0).toString());
+  };
+
+  const saveStockEdit = async (itemId) => {
+    if (!tempStock || isNaN(parseInt(tempStock)) || parseInt(tempStock) < 0) {
+      toast.error('Please enter a valid stock quantity');
+      return;
+    }
+
+    try {
+      const newStock = parseInt(tempStock);
+      const item = menuItems.find(item => item.id === itemId);
+      const updateData = {
+        stock: newStock,
+        updatedAt: new Date()
+      };
+
+      // Auto-deactivate item if stock becomes 0
+      if (newStock === 0) {
+        updateData.isActive = false;
+      }
+      // Auto-activate item if stock goes from 0 to positive (and it was previously inactive due to stock)
+      else if (newStock > 0 && item && !item.isActive && (item.stock || 0) === 0) {
+        updateData.isActive = true;
+      }
+
+      await updateDoc(doc(db, 'menuItems', itemId), updateData);
+      
+      if (newStock === 0) {
+        toast.success('Stock updated and item deactivated (out of stock)');
+      } else if (newStock > 0 && item && !item.isActive && (item.stock || 0) === 0) {
+        toast.success('Stock updated and item reactivated');
+      } else {
+        toast.success('Stock updated successfully');
+      }
+      
+      setEditingStock(null);
+      setTempStock('');
+    } catch (error) {
+      console.error('Error updating stock:', error);
+      toast.error('Error updating stock');
+    }
+  };
+
+  const cancelStockEdit = () => {
+    setEditingStock(null);
+    setTempStock('');
+  };
+
   const handleImageSelect = (file) => {
     setSelectedImage(file);
   };
@@ -363,6 +420,18 @@ const AdminMenu = () => {
                   value={formData.price}
                   onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
                   placeholder="0.00"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Stock Quantity *</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.stock}
+                  onChange={(e) => setFormData(prev => ({ ...prev, stock: e.target.value }))}
+                  placeholder="Available quantity"
                   required
                 />
               </div>
@@ -552,6 +621,41 @@ const AdminMenu = () => {
                   ) : (
                     <div className="price-display" onClick={() => startPriceEdit(item)}>
                       <span className="price">₹{item.price}</span>
+                      <Edit className="edit-icon" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="stock-section">
+                  {editingStock === item.id ? (
+                    <div className="stock-edit">
+                      <input
+                        type="number"
+                        min="0"
+                        value={tempStock}
+                        onChange={(e) => setTempStock(e.target.value)}
+                        className="stock-input"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => saveStockEdit(item.id)}
+                        className="save-stock-btn"
+                      >
+                        <Check className="icon" />
+                      </button>
+                      <button
+                        onClick={cancelStockEdit}
+                        className="cancel-stock-btn"
+                      >
+                        <X className="icon" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="stock-display" onClick={() => startStockEdit(item)}>
+                      <span className="stock-label">Stock:</span>
+                      <span className={`stock-value ${(item.stock || 0) <= 5 ? 'low-stock' : ''}`}>
+                        {item.stock || 0}
+                      </span>
                       <Edit className="edit-icon" />
                     </div>
                   )}

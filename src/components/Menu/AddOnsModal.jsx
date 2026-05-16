@@ -2,11 +2,15 @@ import { useState } from 'react';
 import { X, Plus, Minus } from 'lucide-react';
 import './AddOnsModal.scss';
 
-const AddOnsModal = ({ isOpen, onClose, item, onAddToCart }) => {
+const AddOnsModal = ({ isOpen, onClose, item, onAddToCart, menuItems = [] }) => {
   const [selectedAddOns, setSelectedAddOns] = useState([]);
   const [quantity, setQuantity] = useState(1);
 
   if (!isOpen || !item) return null;
+
+  // Get available stock for this item
+  const menuItem = menuItems.find(mi => mi.id === item.id);
+  const availableStock = menuItem ? (menuItem.stock || 0) : 0;
 
   const handleAddOnToggle = (addOn) => {
     setSelectedAddOns(prev => {
@@ -153,6 +157,11 @@ const AddOnsModal = ({ isOpen, onClose, item, onAddToCart }) => {
           {/* Quantity Section */}
           <div className="quantity-section">
             <h3>Quantity</h3>
+            {availableStock > 0 && (
+              <p className="stock-info">
+                {availableStock <= 10 ? `Only ${availableStock} available` : `${availableStock} available`}
+              </p>
+            )}
             <div className="quantity-controls">
               <button 
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -163,8 +172,9 @@ const AddOnsModal = ({ isOpen, onClose, item, onAddToCart }) => {
               </button>
               <span className="quantity">{quantity}</span>
               <button 
-                onClick={() => setQuantity(quantity + 1)}
+                onClick={() => setQuantity(Math.min(availableStock, quantity + 1))}
                 className="quantity-btn"
+                disabled={quantity >= availableStock}
               >
                 <Plus />
               </button>
@@ -176,8 +186,12 @@ const AddOnsModal = ({ isOpen, onClose, item, onAddToCart }) => {
           <div className="total-price">
             <span>Total: ₹{calculateTotalPrice()}</span>
           </div>
-          <button onClick={handleAddToCart} className="add-to-cart-btn">
-            Add to Cart
+          <button 
+            onClick={handleAddToCart} 
+            className="add-to-cart-btn"
+            disabled={availableStock === 0 || quantity > availableStock}
+          >
+            {availableStock === 0 ? 'Out of Stock' : 'Add to Cart'}
           </button>
         </div>
       </div>
