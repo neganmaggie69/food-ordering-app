@@ -3,7 +3,7 @@ import { X, MapPin, CreditCard, Truck, Package } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, runTransaction } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import toast from 'react-hot-toast';
 import './CheckoutModal.scss';
@@ -22,6 +22,59 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
 
   const getFinalTotal = () => {
     return getTotalPrice() + getDeliveryFee();
+  };
+
+  const updateStockLevels = async (orderItems) => {
+    try {
+      await runTransaction(db, async (transaction) => {
+        // Get all menu items that need stock updates
+        const stockUpdates = [];
+        
+        for (const item of orderItems) {
+          const menuItemRef = doc(db, 'menuItems', item.id);
+          const menuItemDoc = await transaction.get(menuItemRef);
+          
+          if (!menuItemDoc.exists()) {
+            throw new Error(`Menu item ${item.name} not found`);
+          }
+          
+          const menuItemData = menuItemDoc.data();
+          const currentStock = menuItemData.stock || 0;
+          const orderedQuantity = item.quantity;
+          
+          if (currentStock < orderedQuantity) {
+            throw new Error(`Insufficient stock for ${item.name}. Available: ${currentStock}, Ordered: ${orderedQuantity}`);
+          }
+          
+          const newStock = currentStock - orderedQuantity;
+          stockUpdates.push({
+            ref: menuItemRef,
+            newStock: newStock,
+            itemName: item.name
+          });
+        }
+        
+        // Apply all stock updates
+        for (const update of stockUpdates) {
+          const updateData = {
+            stock: update.newStock,
+            updatedAt: new Date()
+          };
+          
+          // Auto-deactivate if stock becomes 0
+          if (update.newStock === 0) {
+            updateData.isActive = false;
+          }
+          
+          transaction.update(update.ref, updateData);
+        }
+        
+        console.log('Stock levels updated successfully for order');
+      });
+    } catch (error) {
+      console.error('Error updating stock levels:', error);
+      throw error;
+    }
   };
 
   const cleanObjectForFirestore = (obj) => {
@@ -124,71 +177,78 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
           netbanking: true,
           wallet: true
         },
-      handler: async function (response) {
-        // Save order with payment details - only include defined fields
-        const finalOrder = {
-          ...orderDetails,
-          paymentId: response.razorpay_payment_id,
-          paymentStatus: 'paid'
-        };
-        
-        // Only add razorpaySignature if it exists
-        if (response.razorpay_signature) {
-          finalOrder.razorpaySignature = response.razorpay_signature;
-        }
-        
-        try {
-          console.log('Saving order:', finalOrder);
-          const docRef = await saveOrderWithRetry(finalOrder);
-          console.log('Order saved with ID:', docRef.id);
-          
-          // Create notifications for order placement
-          try {
-            await orderPlaced({
-              customerName: user.phoneNumber || user.email || 'Customer',
-              total: getFinalTotal(),
-              items: cartItems
-            });
-            console.log('Order notification created successfully');
-          } catch (notificationError) {
-            console.error('Error creating notifications:', notificationError);
-            // Don't fail the order if notifications fail
-          }
-          
-          clearCart();
-          toast.success('Payment successful! Order placed.');
-          onClose();
-          if (onOrderSuccess) onOrderSuccess();
-        } catch (error) {
-          console.error('Error saving order after payment:', error);
-          
-          // Store failed order locally for recovery
-          const failedOrder = {
-            ...finalOrder,
-            failedAt: new Date().toISOString(),
-            error: error.message
+        handler: async function (response) {
+          // Save order with payment details - only include defined fields
+          const finalOrder = {
+            ...orderDetails,
+            paymentId: response.razorpay_payment_id,
+            paymentStatus: 'paid'
           };
-          localStorage.setItem('failedOrder_' + response.razorpay_payment_id, JSON.stringify(failedOrder));
           
-          // More specific error message
-          if (error.code === 'permission-denied') {
-            toast.error('Permission denied. Please login again and try.');
-          } else if (error.code === 'unavailable') {
-            toast.error('Service temporarily unavailable. Your payment was successful. Please contact support with payment ID: ' + response.razorpay_payment_id);
-          } else if (error.message.includes('Missing required fields')) {
-            toast.error('Order data incomplete. Payment ID: ' + response.razorpay_payment_id + '. Please contact support.');
-          } else {
-            toast.error('Payment successful but order save failed. Payment ID: ' + response.razorpay_payment_id + '. Please contact support.');
+          // Only add razorpaySignature if it exists
+          if (response.razorpay_signature) {
+            finalOrder.razorpaySignature = response.razorpay_signature;
           }
-        }
-      },
-      prefill: {
-        contact: user.phoneNumber,
-      },
-      theme: {
-        color: '#1e40af',
-      },
-    };
+          
+          try {
+            console.log('Saving order:', finalOrder);
+            
+            // Update stock levels first (this will fail if insufficient stock)
+            await updateStockLevels(cartItems);
+            
+            // Then save the order
+            const docRef = await saveOrderWithRetry(finalOrder);
+            console.log('Order saved with ID:', docRef.id);
+            
+            // Create notifications for order placement
+            try {
+              await orderPlaced({
+                customerName: user.phoneNumber || user.email || 'Customer',
+                total: getFinalTotal(),
+                items: cartItems
+              });
+              console.log('Order notification created successfully');
+            } catch (notificationError) {
+              console.error('Error creating notifications:', notificationError);
+              // Don't fail the order if notifications fail
+            }
+            
+            clearCart();
+            toast.success('Payment successful! Order placed.');
+            onClose();
+            if (onOrderSuccess) onOrderSuccess();
+          } catch (error) {
+            console.error('Error saving order after payment:', error);
+            
+            // Store failed order locally for recovery
+            const failedOrder = {
+              ...finalOrder,
+              failedAt: new Date().toISOString(),
+              error: error.message
+            };
+            localStorage.setItem('failedOrder_' + response.razorpay_payment_id, JSON.stringify(failedOrder));
+            
+            // More specific error message
+            if (error.message.includes('Insufficient stock')) {
+              toast.error('Order failed: ' + error.message + '. Payment ID: ' + response.razorpay_payment_id);
+            } else if (error.code === 'permission-denied') {
+              toast.error('Permission denied. Please login again and try.');
+            } else if (error.code === 'unavailable') {
+              toast.error('Service temporarily unavailable. Your payment was successful. Please contact support with payment ID: ' + response.razorpay_payment_id);
+            } else if (error.message.includes('Missing required fields')) {
+              toast.error('Order data incomplete. Payment ID: ' + response.razorpay_payment_id + '. Please contact support.');
+            } else {
+              toast.error('Payment successful but order save failed. Payment ID: ' + response.razorpay_payment_id + '. Please contact support.');
+            }
+          }
+        },
+        prefill: {
+          contact: user.phoneNumber,
+        },
+        theme: {
+          color: '#1e40af',
+        },
+      };
 
     const paymentObject = new window.Razorpay(options);
     
@@ -245,27 +305,42 @@ const CheckoutModal = ({ isOpen, onClose, onOrderSuccess }) => {
         }
       } else {
         // For COD
-        const orderDoc = await saveOrderWithRetry(baseOrder);
-        
-        // Create notifications for order placement
         try {
-          // Notify admin about new order with meaningful information
-          await orderPlaced({
-            customerName: user.phoneNumber || user.email || 'Customer',
-            total: getFinalTotal(),
-            items: cartItems
-          });
+          // Update stock levels first (this will fail if insufficient stock)
+          await updateStockLevels(cartItems);
           
-          console.log('Order notification created successfully');
-        } catch (notificationError) {
-          console.error('Error creating notifications:', notificationError);
-          // Don't fail the order if notifications fail
+          // Then save the order
+          await saveOrderWithRetry(baseOrder);
+          
+          // Create notifications for order placement
+          try {
+            // Notify admin about new order with meaningful information
+            await orderPlaced({
+              customerName: user.phoneNumber || user.email || 'Customer',
+              total: getFinalTotal(),
+              items: cartItems
+            });
+            
+            console.log('Order notification created successfully');
+          } catch (notificationError) {
+            console.error('Error creating notifications:', notificationError);
+            // Don't fail the order if notifications fail
+          }
+          
+          clearCart();
+          toast.success('Order placed successfully!');
+          onClose();
+          if (onOrderSuccess) onOrderSuccess();
+        } catch (stockError) {
+          // Handle stock-related errors specifically
+          if (stockError.message.includes('Insufficient stock')) {
+            toast.error('Order failed: ' + stockError.message);
+          } else {
+            console.error('Error in COD order processing:', stockError);
+            toast.error('Error placing order: ' + stockError.message);
+          }
+          throw stockError; // Re-throw to be caught by outer try-catch
         }
-        
-        clearCart();
-        toast.success('Order placed successfully!');
-        onClose();
-        if (onOrderSuccess) onOrderSuccess();
       }
     } catch (error) {
       console.error('Error placing order:', error);
